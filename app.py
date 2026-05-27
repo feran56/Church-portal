@@ -75,11 +75,49 @@ def dashboard():
         return redirect("/login")
 
     return """
-    <h1>Church Dashboard</h1>
-    <a href="/finance">Finance</a><br><br>
-    <a href="/attendance">Attendance</a><br><br>
-    <a href="/logout">Logout</a>
-    """
+<!doctype html>
+<html>
+<head>
+    <title>Church Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-5">
+
+    <h2 class="mb-4 text-center">⛪ Church Dashboard</h2>
+
+    <div class="row">
+
+        <div class="col-md-4">
+            <div class="card p-3 shadow">
+                <h5>💰 Finance</h5>
+                <a class="btn btn-primary" href="/finance">Open</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 shadow">
+                <h5>📋 Attendance</h5>
+                <a class="btn btn-success" href="/attendance">Open</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 shadow">
+                <h5>🚪 Logout</h5>
+                <a class="btn btn-danger" href="/logout">Exit</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+"""
 
 # ======================
 # FINANCE MENU

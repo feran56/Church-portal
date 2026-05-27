@@ -74,7 +74,13 @@ def dashboard():
     if "user" not in session:
         return redirect("/login")
 
-    return """
+    # Get finance data safely
+    total_finance = Finance.query.all()
+
+    total_income = sum(item.amount for item in total_finance)
+    total_records = len(total_finance)
+
+    return f"""
 <!doctype html>
 <html>
 <head>
@@ -86,28 +92,48 @@ def dashboard():
 
 <div class="container mt-5">
 
-    <h2 class="mb-4 text-center">⛪ Church Dashboard</h2>
+    <h2 class="text-center mb-4">Church Admin Dashboard</h2>
 
     <div class="row">
 
         <div class="col-md-4">
-            <div class="card p-3 shadow">
-                <h5>💰 Finance</h5>
-                <a class="btn btn-primary" href="/finance">Open</a>
+            <div class="card p-3 shadow text-center">
+                <h5>Finance</h5>
+                <a class="btn btn-primary" href="/finance">Open Finance</a>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="card p-3 shadow">
-                <h5>📋 Attendance</h5>
-                <a class="btn btn-success" href="/attendance">Open</a>
+            <div class="card p-3 shadow text-center">
+                <h5>Attendance</h5>
+                <a class="btn btn-success" href="/attendance">Open Attendance</a>
             </div>
         </div>
 
         <div class="col-md-4">
+            <div class="card p-3 shadow text-center">
+                <h5>Logout</h5>
+                <a class="btn btn-danger" href="/logout">Logout</a>
+            </div>
+        </div>
+
+    </div>
+
+    <hr class="my-4">
+
+    <div class="row text-center">
+
+        <div class="col-md-6">
             <div class="card p-3 shadow">
-                <h5>🚪 Logout</h5>
-                <a class="btn btn-danger" href="/logout">Exit</a>
+                <h6>Total Finance Records</h6>
+                <h3>{total_records}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-3 shadow">
+                <h6>Total Income</h6>
+                <h3>{total_income} NGN</h3>
             </div>
         </div>
 
@@ -118,7 +144,6 @@ def dashboard():
 </body>
 </html>
 """
-
 # ======================
 # FINANCE MENU
 # ======================

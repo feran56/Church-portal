@@ -2,9 +2,20 @@ from flask import Flask, render_template_string, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from reportlab.pdfgen import canvas
 from flask import make_response
+import traceback
+import sys
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 app = Flask(__name__)
+@app.errorhandler(500)
+def internal_error(error):
+    print("🔥 ERROR OCCURRED:")
+    print(traceback.format_exc())
+    return "Internal Server Error (check logs)", 500
+
+
 app.secret_key = "secretkey"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///data.db"
@@ -578,6 +589,13 @@ def finance():
         total_expense=total_expense,
         balance=balance
     )
+
+
+
+@app.route("/test")
+def test():
+    return "App is working"
+
 
 
 # ======================

@@ -1,0 +1,13 @@
+# Database files
+instance/
+*.db
+
+# PDF files
+*.pdf
+
+# Cache files
+.cache/
+__pycache__/
+
+# Python
+*.pyc

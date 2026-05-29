@@ -58,3 +58,38 @@ pwd
 cd ~
 ~~~~~~~~~~~~~
 nano app.py
+python app.py
+pwd
+ls
+python app.pg
+python app.py
+nano app.py
+grep -n "def finance\|def service\|def pdf" app.py
+python app.py
+pkill -f python
+python app.py
+nano app.py
+python app.py
+nano app.py
+
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py.
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+pkill -f python
+python app.py
+nano app.py
+python app.py
+pkill -f python
+python app.py
+nano app.py

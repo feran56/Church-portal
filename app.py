@@ -34,6 +34,11 @@ class Attendance(db.Model):
 # ======================
 # LOGIN (RESTORED UI)
 # ======================
+from flask import render_template_string, request, redirect, session
+
+# ======================
+# LOGIN (UPGRADED CLEAN VERSION)
+# ======================
 @app.route("/", methods=["GET", "POST"])
 def login():
 
@@ -44,6 +49,7 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
 
+        # your original logic (kept same)
         if password == "1234":
             session["user"] = username
             return redirect("/dashboard")
@@ -51,86 +57,68 @@ def login():
             error = "Wrong password"
 
     return render_template_string("""
-
-    <!doctype html>
+    <!DOCTYPE html>
     <html>
     <head>
-    <title>Login</title>
+        <title>Church Portal Login</title>
+        <style>
+            body {
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: #f2f2f2;
+                font-family: Arial;
+            }
 
-    <style>
+            .box {
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+                width: 300px;
+                text-align: center;
+            }
 
-    body{
-        margin:0;
-        font-family:Arial;
-        background:white;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        height:100vh;
-    }
+            input {
+                width: 90%;
+                padding: 10px;
+                margin: 8px 0;
+            }
 
-    .box{
-        width:320px;
-        padding:25px;
-        border-radius:15px;
-        box-shadow:0 6px 20px rgba(0,0,0,0.1);
-    }
+            button {
+                width: 100%;
+                padding: 10px;
+                background: green;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
 
-    h2{text-align:center;}
-
-    input{
-        width:100%;
-        padding:12px;
-        margin:8px 0;
-        border:1px solid #ddd;
-        border-radius:10px;
-    }
-
-    button{
-        width:100%;
-        padding:12px;
-        background:#16a34a;
-        color:white;
-        border:none;
-        border-radius:10px;
-        font-weight:bold;
-    }
-
-    button:hover{
-        background:#15803d;
-    }
-
-    .error{
-        color:red;
-        text-align:center;
-        margin-top:10px;
-    }
-
-    </style>
-
+            .error {
+                color: red;
+                margin-top: 10px;
+            }
+        </style>
     </head>
 
     <body>
 
-    <div class="box">
+        <div class="box">
+            <h2>Church Portal Login</h2>
 
-        <h2>Login</h2>
+            <form method="POST">
+                <input name="username" placeholder="Username" required>
+                <input name="password" type="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
 
-        <form method="POST">
-            <input name="username" placeholder="Username">
-            <input name="password" type="password" placeholder="Password">
-            <button>Login</button>
-        </form>
-
-        <div class="error">{{error}}</div>
-
-    </div>
+            <div class="error">{{error}}</div>
+        </div>
 
     </body>
     </html>
-
     """, error=error)
-
 
 # ======================
 # DASHBOARD (SAFE SIMPLE)
@@ -1006,3 +994,4 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     app.run(host="0.0.0.0", port=5000, debug=True)
+

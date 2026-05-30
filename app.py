@@ -1,30 +1,27 @@
 from flask import Flask, render_template_string, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
+from io import BytesIO
 from reportlab.pdfgen import canvas
-from flask import make_response
-import traceback
-import sys
-import logging
-logging.basicConfig(level=logging.DEBUG)
+import os
 
-
+# ======================
+# APP SETUP
+# ======================
 app = Flask(__name__)
-@app.errorhandler(500)
-def internal_error(error):
-    print("🔥 ERROR OCCURRED:")
-    print(traceback.format_exc())
-    return "Internal Server Error (check logs)", 500
-
-
 app.secret_key = "secretkey"
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///data.db"
+# 🔥 RENDER + TERMUX FIX (important)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    "DATABASE_URL",
+    "sqlite:///data.db"
+)
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 db = SQLAlchemy(app)
 
 # ======================
 # MODELS
 # ======================
-
 class Finance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(100))
@@ -41,14 +38,14 @@ class Attendance(db.Model):
     sunday_school = db.Column(db.Integer)
     total = db.Column(db.Integer)
 
+# ======================
+# CREATE TABLES (FIXED FOR RENDER)
+# ======================
+with app.app_context():
+    db.create_all()
 
 # ======================
-# LOGIN (RESTORED UI)
-# ======================
-from flask import render_template_string, request, redirect, session
-
-# ======================
-# LOGIN (UPGRADED CLEAN VERSION)
+# LOGIN
 # ======================
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -60,7 +57,6 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
 
-        # your original logic (kept same)
         if password == "1234":
             session["user"] = username
             return redirect("/dashboard")
@@ -68,71 +64,56 @@ def login():
             error = "Wrong password"
 
     return render_template_string("""
-    <!DOCTYPE html>
     <html>
     <head>
-        <title>Church Portal Login</title>
-        <style>
-            body {
-                height: 100vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background: #f2f2f2;
-                font-family: Arial;
-            }
-
-            .box {
-                background: white;
-                padding: 30px;
-                border-radius: 10px;
-                box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-                width: 300px;
-                text-align: center;
-            }
-
-            input {
-                width: 90%;
-                padding: 10px;
-                margin: 8px 0;
-            }
-
-            button {
-                width: 100%;
-                padding: 10px;
-                background: green;
-                color: white;
-                border: none;
-                cursor: pointer;
-            }
-
-            .error {
-                color: red;
-                margin-top: 10px;
-            }
-        </style>
+    <style>
+    body{
+        background:white;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+        font-family:Arial;
+    }
+    .box{
+        width:300px;
+        padding:20px;
+        box-shadow:0 0 10px rgba(0,0,0,0.2);
+        border-radius:10px;
+        text-align:center;
+    }
+    input{
+        width:90%;
+        padding:10px;
+        margin:5px;
+    }
+    button{
+        width:100%;
+        padding:10px;
+        background:green;
+        color:white;
+        border:none;
+    }
+    .error{color:red;}
+    </style>
     </head>
 
     <body>
-
-        <div class="box">
-            <h2>Church Portal Login</h2>
-
-            <form method="POST">
-                <input name="username" placeholder="Username" required>
-                <input name="password" type="password" placeholder="Password" required>
-                <button type="submit">Login</button>
-            </form>
-
-            <div class="error">{{error}}</div>
-        </div>
-
+    <div class="box">
+        <h2>LOGIN</h2>
+        <form method="POST">
+            <input name="username" placeholder="Username">
+            <input name="password" type="password" placeholder="Password">
+            <button>Login</button>
+        </form>
+        <p class="error">{{error}}</p>
+    </div>
     </body>
     </html>
     """, error=error)
 
 # ======================
-# DASHBOARD (SAFE SIMPLE)
+# DASHBOARD (VERTICAL MENU + STATS)
 # ======================
 @app.route("/dashboard")
 def dashboard():
@@ -140,133 +121,83 @@ def dashboard():
     if "user" not in session:
         return redirect("/")
 
-    # -----------------------------
-    # STATS CALCULATION (SAFE ONLY)
-    # -----------------------------
-
     incomes = Finance.query.filter_by(type="income").all()
     expenses = Finance.query.filter_by(type="expense").all()
 
-    total_income = sum([i.amount for i in incomes])
-    total_expense = sum([e.amount for e in expenses])
+    total_income = sum(i.amount for i in incomes)
+    total_expense = sum(e.amount for e in expenses)
 
     attendance_records = Attendance.query.all()
-    attendance_total = sum([r.men + r.women + r.children for r in attendance_records])
+    attendance_total = sum(r.men + r.women + r.children for r in attendance_records)
 
     return render_template_string("""
-
-    <!doctype html>
     <html>
     <head>
-    <title>Dashboard</title>
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color:white;
+}
 
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+/* TITLE */
+.title{
+    text-align:center;
+    font-size:26px;
+    font-weight:bold;
+    margin-top:20px;
+    letter-spacing:2px;
+}
 
-    <style>
+/* STATS */
+.stats{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:15px;
+    flex-wrap:wrap;
+}
 
-    body{
-        margin:0;
-        font-family:Arial;
+.stat{
+    background: rgba(255,255,255,0.1);
+    padding:12px;
+    width:100px;
+    border-radius:12px;
+    text-align:center;
+    backdrop-filter: blur(10px);
+}
 
-        /* MODERN BACKGROUND */
-        background: linear-gradient(135deg, #e0e7ff, #f8fafc);
-    }
+/* MENU */
+.menu{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-top:30px;
+    gap:15px;
+}
 
-    /* TITLE */
-    .title{
-        text-align:center;
-        font-size:28px;
-        font-weight:bold;
-        margin-top:25px;
-        color:#111827;
-        letter-spacing:2px;
-    }
+/* BUTTONS */
+.btn{
+    width:260px;
+    padding:15px;
+    color:white;
+    text-decoration:none;
+    text-align:center;
+    border-radius:12px;
+    font-weight:bold;
+    transition:0.2s;
+}
 
-    /* STATS */
-    .stats{
-        display:flex;
-        justify-content:center;
-        gap:15px;
-        margin-top:20px;
-        flex-wrap:wrap;
-    }
+.btn:hover{
+    transform:scale(1.05);
+}
 
-    .stat-box{
-        width:120px;
-        height:80px;
-        background:rgba(255,255,255,0.3);
-        backdrop-filter:blur(10px);
-        border-radius:12px;
-        text-align:center;
-        padding:10px;
-        box-shadow:0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    .stat-box h3{
-        font-size:12px;
-        margin:0;
-        color:#111827;
-    }
-
-    .stat-box p{
-        font-size:20px;
-        font-weight:bold;
-        margin:5px 0 0 0;
-    }
-
-    /* DASHBOARD CONTAINER */
-    .container{
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        gap:20px;
-        margin-top:30px;
-    }
-
-    /* CARDS */
-    .card{
-        width:260px;
-        height:95px;
-
-        border-radius:16px;
-
-        display:flex;
-        justify-content:center;
-        align-items:center;
-
-        font-size:20px;
-        font-weight:bold;
-
-        color:white;
-        text-decoration:none;
-
-        box-shadow:0 8px 20px rgba(0,0,0,0.15);
-
-        transition:0.2s;
-    }
-
-    .card:hover{
-        transform:scale(1.05);
-    }
-
-    .finance{
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    }
-
-    .attendance{
-        background: linear-gradient(135deg, #16a34a, #15803d);
-    }
-
-    .pdf{
-        background: linear-gradient(135deg, #dc2626, #b91c1c);
-    }
-
-    .logout{
-        background: linear-gradient(135deg, #111827, #374151);
-    }
-
-    </style>
+.blue{background:#2563eb;}
+.green{background:#16a34a;}
+.red{background:#dc2626;}
+.black{background:#111827;}
+</style>
 
     </head>
 
@@ -274,89 +205,28 @@ def dashboard():
 
     <div class="title">CROWN OF GLORY PORTAL</div>
 
-    <!-- ANIMATED STATS -->
     <div class="stats">
-
-        <div class="stat-box">
-            <h3>Income</h3>
-            <p id="income">0</p>
-        </div>
-
-        <div class="stat-box">
-            <h3>Expense</h3>
-            <p id="expense">0</p>
-        </div>
-
-        <div class="stat-box">
-            <h3>Attendance</h3>
-            <p id="attendance">0</p>
-        </div>
-
+        <div class="stat">Income<br>{{income}}</div>
+        <div class="stat">Expense<br>{{expense}}</div>
+        <div class="stat">Attend<br>{{att}}</div>
     </div>
 
-    <!-- MAIN BUTTONS -->
-    <div class="container">
-
-        <a class="card finance" href="/finance">
-            FINANCE
-        </a>
-
-        <a class="card attendance" href="/attendance">
-            ATTENDANCE
-        </a>
-
-        <a class="card pdf" href="/finance/pdf">
-            FINANCE PDF
-        </a>
-
-        <a class="card logout" href="/logout">
-            LOGOUT
-        </a>
-
+    <div class="menu">
+        <a class="btn blue" href="/finance">FINANCE</a>
+        <a class="btn green" href="/attendance">ATTENDANCE</a>
+        <a class="btn red" href="/finance/pdf">FINANCE PDF</a>
+        <a class="btn black" href="/logout">LOGOUT</a>
     </div>
-
-    <script>
-
-function animate(id, target){
-
-    let count = 0;
-
-    // 🔥 slower + smoother step
-    let step = target / 100;
-
-    let interval = setInterval(() => {
-
-        count += step;
-
-        if(count >= target){
-            count = target;
-            clearInterval(interval);
-        }
-
-        document.getElementById(id).innerText = Math.floor(count);
-
-    }, 30); // slower interval = visible animation
-}
-
-/* START ANIMATION */
-animate("income", {{total_income}});
-animate("expense", {{total_expense}});
-animate("attendance", {{attendance_total}});
-
-</script>
 
     </body>
     </html>
-
     """,
-    total_income=total_income,
-    total_expense=total_expense,
-    attendance_total=attendance_total)
-
-
+    income=total_income,
+    expense=total_expense,
+    att=attendance_total)
 
 # ======================
-# FINANCE (FULL RESTORED + POPUP)
+# FINANCE
 # ======================
 @app.route("/finance", methods=["GET", "POST"])
 def finance():
@@ -382,225 +252,186 @@ def finance():
     total_expense = sum(r.amount for r in records if r.type == "expense")
     balance = total_income - total_expense
 
-    html = """
-    <!doctype html>
-    <html>
-    <head>
-    <title>Finance</title>
+    return render_template_string("""
 
-    <style>
+<!doctype html>
+<html>
+<head>
+<title>Finance</title>
 
-    body{background:#f4f6fb;font-family:Arial;margin:0;}
+<style>
+body{background:#f4f6fb;font-family:Arial;margin:0;}
 
-    .header{
-        text-align:center;
-        padding:15px;
-        font-size:22px;
-        font-weight:bold;
-    }
+.header{
+    text-align:center;
+    padding:15px;
+    font-size:22px;
+    font-weight:bold;
+}
 
-    .card{
-        display:flex;
-        gap:10px;
-        padding:10px;
-    }
+.card{
+    display:flex;
+    gap:10px;
+    padding:10px;
+}
 
-    .box{
-        flex:1;
-        padding:12px;
-        color:white;
-        border-radius:10px;
-        text-align:center;
-    }
+.box{
+    flex:1;
+    padding:12px;
+    color:white;
+    border-radius:10px;
+    text-align:center;
+}
 
-    .g{background:#10b981;}
-    .r{background:#ef4444;}
-    .b{background:#3b82f6;}
+.g{background:#10b981;}
+.r{background:#ef4444;}
+.b{background:#3b82f6;}
 
-    .form,.table{
-        background:white;
-        margin:10px;
-        padding:10px;
-        border-radius:10px;
-    }
+.form,.table{
+    background:white;
+    margin:10px;
+    padding:10px;
+    border-radius:10px;
+}
 
-    input,select{
-        width:100%;
-        padding:8px;
-        margin:5px 0;
-    }
+input,select{
+    width:100%;
+    padding:8px;
+    margin:5px 0;
+}
 
-    button{
-        padding:8px;
-        background:#111827;
-        color:white;
-        border:none;
-        border-radius:6px;
-    }
+button{
+    padding:8px;
+    background:#111827;
+    color:white;
+    border:none;
+    border-radius:6px;
+}
 
-    table{
-        width:100%;
-        border-collapse:collapse;
-    }
+/* POPUP */
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#00000080;
+    justify-content:center;
+    align-items:center;
+}
 
-    th,td{
-        padding:10px;
-        border-bottom:1px solid #eee;
-    }
+.modal-box{
+    background:white;
+    padding:15px;
+    width:280px;
+    border-radius:10px;
+}
+</style>
+</head>
 
-    .edit{color:blue;}
-    .delete{color:red;}
+<body>
 
-    .back{
-        margin:10px;
-        display:inline-block;
-        padding:8px;
-        background:#333;
-        color:white;
-        border-radius:6px;
-        text-decoration:none;
-    }
+<div class="header">Finance Dashboard</div>
 
-    .modal{
-        display:none;
-        position:fixed;
-        top:0;
-        left:0;
-        width:100%;
-        height:100%;
-        background:#00000080;
-        justify-content:center;
-        align-items:center;
-    }
+<div class="card">
+    <div class="box g">Income<br>{{total_income}}</div>
+    <div class="box r">Expense<br>{{total_expense}}</div>
+    <div class="box b">Balance<br>{{balance}}</div>
+</div>
 
-    .boxm{
-        background:white;
-        padding:15px;
-        border-radius:10px;
-        width:280px;
-    }
+<div class="form">
+<form method="POST">
+    <input name="category" placeholder="Category">
+    <input name="amount" placeholder="Amount">
 
-    </style>
+    <select name="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+    </select>
 
-    </head>
+    <button>Add</button>
+</form>
+</div>
 
-    <body>
+<div class="table">
+<table width="100%">
+<tr>
+<th>Category</th>
+<th>Amount</th>
+<th>Type</th>
+<th>Action</th>
+</tr>
 
-    <div class="header">Finance Dashboard</div>
+{% for r in records %}
+<tr>
+<td>{{r.category}}</td>
+<td>{{r.amount}}</td>
+<td>{{r.type}}</td>
+<td>
+<button onclick="openFinance('{{r.id}}','{{r.category}}','{{r.amount}}','{{r.type}}')">
+Edit
+</button>
+<a href="/finance/delete/{{r.id}}">Delete</a>
+</td>
+</tr>
+{% endfor %}
 
-    <div class="card">
-        <div class="box g">Income<br>{{total_income}}</div>
-        <div class="box r">Expense<br>{{total_expense}}</div>
-        <div class="box b">Balance<br>{{balance}}</div>
-    </div>
+</table>
+</div>
 
-    <div class="form">
+<a href="/dashboard">Back</a>
 
-        <form method="POST">
+<!-- POPUP -->
+<div id="financeModal" class="modal">
+<div class="modal-box">
 
-            <input name="category" placeholder="Category">
-            <input name="amount" placeholder="Amount">
+<form id="financeForm" method="POST">
 
-            <select name="type">
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-            </select>
+<input id="f_cat" name="category">
+<input id="f_amt" name="amount">
 
-            <button>Add</button>
+<select id="f_type" name="type">
+<option value="income">Income</option>
+<option value="expense">Expense</option>
+</select>
 
-        </form>
+<button>Update</button>
+<button type="button" onclick="closeFinance()">Cancel</button>
 
-    </div>
+</form>
 
-    <div class="table">
+</div>
+</div>
 
-        <table>
+<script>
+function openFinance(id,cat,amt,type){
+    document.getElementById("financeModal").style.display="flex";
 
-        <tr>
-            <th>Category</th>
-            <th>Amount</th>
-            <th>Type</th>
-            <th>Action</th>
-        </tr>
+    document.getElementById("f_cat").value=cat;
+    document.getElementById("f_amt").value=amt;
+    document.getElementById("f_type").value=type;
 
-        {% for r in records %}
-        <tr>
-            <td>{{r.category}}</td>
-            <td>{{r.amount}}</td>
-            <td>{{r.type}}</td>
-            <td>
-                <a class="edit" href="#" onclick="openFinance('{{r.id}}','{{r.category}}','{{r.amount}}','{{r.type}}')">Edit</a>
-                <a class="delete" href="/finance/delete/{{r.id}}">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
+    document.getElementById("financeForm").action="/finance/edit/"+id;
+}
 
-        </table>
+function closeFinance(){
+    document.getElementById("financeModal").style.display="none";
+}
+</script>
 
-    </div>
+</body>
+</html>
 
-    <a class="back" href="/dashboard">Back</a>
+""",
+total_income=total_income,
+total_expense=total_expense,
+balance=balance,
+records=records)
 
-    <!-- FINANCE POPUP -->
-    <div id="financeModal" class="modal">
-        <div class="boxm">
-
-            <form id="financeForm" method="POST">
-
-                <input id="f_cat" name="category">
-                <input id="f_amt" name="amount">
-
-                <select id="f_type" name="type">
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                </select>
-
-                <button>Update</button>
-                <button type="button" onclick="closeFinance()">Cancel</button>
-
-            </form>
-
-        </div>
-    </div>
-
-    <script>
-
-    function openFinance(id,cat,amt,type){
-        document.getElementById("financeModal").style.display="flex";
-        document.getElementById("f_cat").value=cat;
-        document.getElementById("f_amt").value=amt;
-        document.getElementById("f_type").value=type;
-        document.getElementById("financeForm").action="/finance/edit/"+id;
-    }
-
-    function closeFinance(){
-        document.getElementById("financeModal").style.display="none";
-    }
-
-    </script>
-
-    </body>
-    </html>
-    """
-
-    return render_template_string(html,
-        records=records,
-        total_income=total_income,
-        total_expense=total_expense,
-        balance=balance
-    )
-
-
-
-@app.route("/test")
-def test():
-    return "App is working"
-
-
-
-# ======================
-# FINANCE EDIT
-# ======================
+# =====================
+# EDIT FINANCE
+# =====================
 @app.route("/finance/edit/<int:id>", methods=["POST"])
 def finance_edit(id):
 
@@ -614,11 +445,10 @@ def finance_edit(id):
     item.type = request.form.get("type")
 
     db.session.commit()
+
     return redirect("/finance")
-
-
 # ======================
-# FINANCE DELETE
+# DELETE FINANCE
 # ======================
 @app.route("/finance/delete/<int:id>")
 def finance_delete(id):
@@ -634,17 +464,14 @@ def finance_delete(id):
 
     return redirect("/finance")
 
-# =====================
-# PDF ROUTE
-# =====================
+# ======================
+# PDF (FIXED)
+# ======================
 @app.route("/finance/pdf")
 def finance_pdf():
 
     if "user" not in session:
         return redirect("/")
-
-    from io import BytesIO
-    from reportlab.pdfgen import canvas
 
     buffer = BytesIO()
     p = canvas.Canvas(buffer)
@@ -652,20 +479,14 @@ def finance_pdf():
     records = Finance.query.all()
 
     y = 800
-
-    p.setFont("Helvetica-Bold", 14)
     p.drawString(200, y, "FINANCE REPORT")
-    y -= 40
+    y -= 30
 
     total_income = 0
     total_expense = 0
 
-    p.setFont("Helvetica", 10)
-
     for r in records:
-
-        text = f"{r.category} | {r.amount} | {r.type}"
-        p.drawString(50, y, text)
+        p.drawString(50, y, f"{r.category} | {r.amount} | {r.type}")
         y -= 20
 
         if r.type == "income":
@@ -677,28 +498,23 @@ def finance_pdf():
             p.showPage()
             y = 800
 
-    y -= 30
-    p.drawString(50, y, f"Total Income: {total_income}")
     y -= 20
-    p.drawString(50, y, f"Total Expense: {total_expense}")
+    p.drawString(50, y, f"Income: {total_income}")
+    y -= 20
+    p.drawString(50, y, f"Expense: {total_expense}")
     y -= 20
     p.drawString(50, y, f"Balance: {total_income - total_expense}")
 
     p.save()
-
     buffer.seek(0)
 
-    return (
-        buffer.getvalue(),
-        200,
-        {
-            "Content-Type": "application/pdf",
-            "Content-Disposition": "attachment; filename=finance_report.pdf"
-        }
-    )
+    return buffer.getvalue(), 200, {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "attachment; filename=finance.pdf"
+    }
 
 # ======================
-# ATTENDANCE (RESTORED + POPUP)
+# ATTENDANCE
 # ======================
 @app.route("/attendance", methods=["GET", "POST"])
 def attendance():
@@ -713,7 +529,6 @@ def attendance():
         children = int(request.form.get("children"))
         sunday = int(request.form.get("sunday_school"))
 
-        # ✔ IMPORTANT RULE: Sunday NOT included
         total = men + women + children
 
         new = Attendance(
@@ -734,233 +549,169 @@ def attendance():
 
     return render_template_string("""
 
-    <!doctype html>
-    <html>
-    <head>
+<!doctype html>
+<html>
+<head>
+<title>Attendance</title>
 
-    <title>Attendance</title>
+<style>
+body{font-family:Arial;margin:0;background:#f4f6fb;}
 
-    <style>
+.header{
+    background:#111827;
+    color:white;
+    padding:15px;
+    text-align:center;
+}
 
-    body{
-        font-family:Arial;
-        margin:0;
-        background:#f4f6fb;
-    }
+.box{
+    background:white;
+    margin:15px;
+    padding:15px;
+    border-radius:12px;
+}
 
-    .header{
-        background:#111827;
-        color:white;
-        padding:15px;
-        text-align:center;
-        font-size:18px;
-    }
+input{
+    width:100%;
+    padding:8px;
+    margin:5px 0;
+}
 
-    .box{
-        background:white;
-        margin:15px;
-        padding:15px;
-        border-radius:12px;
-        box-shadow:0 3px 10px rgba(0,0,0,0.08);
-    }
+button{
+    padding:8px;
+    background:#111827;
+    color:white;
+    border:none;
+    border-radius:6px;
+}
 
-    input{
-        width:100%;
-        padding:8px;
-        margin:5px 0;
-        border:1px solid #ddd;
-        border-radius:6px;
-    }
+/* POPUP */
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#00000080;
+    justify-content:center;
+    align-items:center;
+}
 
-    button{
-        padding:8px 12px;
-        background:#111827;
-        color:white;
-        border:none;
-        border-radius:6px;
-    }
+.modal-box{
+    background:white;
+    padding:15px;
+    width:280px;
+    border-radius:10px;
+}
+</style>
+</head>
 
-    table{
-        width:100%;
-        border-collapse:collapse;
-    }
+<body>
 
-    th,td{
-        padding:10px;
-        border-bottom:1px solid #eee;
-        text-align:center;
-        font-size:13px;
-    }
+<div class="header">Attendance</div>
 
-    th{
-        background:#f3f4f6;
-    }
+<div class="box">
+<form method="POST">
 
-    a{
-        text-decoration:none;
-        font-size:12px;
-        margin:0 4px;
-    }
+<input name="date" placeholder="Date">
+<input name="men" placeholder="Men">
+<input name="women" placeholder="Women">
+<input name="children" placeholder="Children">
+<input name="sunday_school" placeholder="Sunday School">
 
-    .edit{color:blue;}
-    .delete{color:red;}
+<button>Add</button>
 
-    /* POPUP */
-    .modal{
-        display:none;
-        position:fixed;
-        top:0;
-        left:0;
-        width:100%;
-        height:100%;
-        background:rgba(0,0,0,0.5);
-        justify-content:center;
-        align-items:center;
-    }
+</form>
+</div>
 
-    .popup{
-        background:white;
-        padding:15px;
-        width:280px;
-        border-radius:10px;
-    }
+<div class="box">
 
-    .back{
-        display:inline-block;
-        margin:10px;
-        padding:8px;
-        background:#333;
-        color:white;
-        border-radius:6px;
-    }
+<table width="100%">
+<tr>
+<th>Date</th>
+<th>Men</th>
+<th>Women</th>
+<th>Children</th>
+<th>Total</th>
+<th>Action</th>
+</tr>
 
-    </style>
+{% for r in records %}
+<tr>
+<td>{{r.date}}</td>
+<td>{{r.men}}</td>
+<td>{{r.women}}</td>
+<td>{{r.children}}</td>
+<td>{{r.men + r.women + r.children}}</td>
+<td>
 
-    </head>
+<button onclick="openPopup('{{r.id}}','{{r.date}}','{{r.men}}','{{r.women}}','{{r.children}}','{{r.sunday_school}}')">
+Edit
+</button>
 
-    <body>
+<a href="/attendance/delete/{{r.id}}">Delete</a>
 
-    <div class="header">Attendance</div>
+</td>
+</tr>
+{% endfor %}
 
-    <!-- FORM -->
-    <div class="box">
+</table>
 
-        <form method="POST">
+</div>
 
-            <input name="date" placeholder="Date">
-            <input name="men" placeholder="Men">
-            <input name="women" placeholder="Women">
-            <input name="children" placeholder="Children">
-            <input name="sunday_school" placeholder="Sunday School">
+<!-- POPUP -->
+<div id="popup" class="modal">
 
-            <button>Add Attendance</button>
+<div class="modal-box">
 
-        </form>
+<form id="editForm" method="POST">
 
-    </div>
+<input id="date" name="date">
+<input id="men" name="men">
+<input id="women" name="women">
+<input id="children" name="children">
+<input id="sunday" name="sunday_school">
 
-    <!-- TABLE -->
-    <div class="box">
+<button>Update</button>
+<button type="button" onclick="closePopup()">Cancel</button>
 
-        <table>
+</form>
 
-            <tr>
-                <th>Date</th>
-                <th>Men</th>
-                <th>Women</th>
-                <th>Children</th>
-                <th>Sunday Sch</th>
-                <th>Total</th>
-                <th>Action</th>
-            </tr>
+</div>
 
-            {% for r in records %}
-            <tr>
-                <td>{{r.date}}</td>
-                <td>{{r.men}}</td>
-                <td>{{r.women}}</td>
-                <td>{{r.children}}</td>
-                <td>{{r.sunday_school}}</td>
+</div>
 
-                <!-- ✔ TOTAL FIXED (NO Sunday school) -->
-                <td>{{ r.men + r.women + r.children }}</td>
+<script>
 
-                <td>
+function openPopup(id,date,men,women,children,sunday){
 
-                    <a class="edit"
-                       href="#"
-                       onclick="openPopup('{{r.id}}','{{r.date}}','{{r.men}}','{{r.women}}','{{r.children}}','{{r.sunday_school}}')">
-                       Edit
-                    </a>
+    document.getElementById("popup").style.display="flex";
 
-                    <a class="delete"
-                       href="/attendance/delete/{{r.id}}">
-                       Delete
-                    </a>
+    document.getElementById("date").value=date;
+    document.getElementById("men").value=men;
+    document.getElementById("women").value=women;
+    document.getElementById("children").value=children;
+    document.getElementById("sunday").value=sunday;
 
-                </td>
-            </tr>
-            {% endfor %}
+    document.getElementById("editForm").action="/attendance/edit/"+id;
+}
 
-        </table>
+function closePopup(){
+    document.getElementById("popup").style.display="none";
+}
 
-    </div>
+</script>
 
-    <a class="back" href="/dashboard">Back</a>
+</body>
+</html>
 
-    <!-- POPUP -->
-    <div id="popup" class="modal">
+""",
+records=records)
 
-        <div class="popup">
-
-            <form id="editForm" method="POST">
-
-                <input id="date" name="date">
-                <input id="men" name="men">
-                <input id="women" name="women">
-                <input id="children" name="children">
-                <input id="sunday" name="sunday_school">
-
-                <button>Update</button>
-                <button type="button" onclick="closePopup()">Cancel</button>
-
-            </form>
-
-        </div>
-
-    </div>
-
-    <script>
-
-    function openPopup(id,date,men,women,children,sunday){
-
-        document.getElementById("popup").style.display="flex";
-
-        document.getElementById("date").value=date;
-        document.getElementById("men").value=men;
-        document.getElementById("women").value=women;
-        document.getElementById("children").value=children;
-        document.getElementById("sunday").value=sunday;
-
-        document.getElementById("editForm").action =
-            "/attendance/edit/" + id;
-    }
-
-    function closePopup(){
-        document.getElementById("popup").style.display="none";
-    }
-
-    </script>
-
-    </body>
-    </html>
-
-    """, records=records)
-
-
-# =====================
+# ====================
 # EDIT ATTENDANCE
-# =====================
+# ====================
 @app.route("/attendance/edit/<int:id>", methods=["POST"])
 def attendance_edit(id):
 
@@ -980,8 +731,9 @@ def attendance_edit(id):
     db.session.commit()
 
     return redirect("/attendance")
+
 # =====================
-# DELRTE ATTENDANCE
+# DELETE ATTENDANCE
 # =====================
 @app.route("/attendance/delete/<int:id>")
 def attendance_delete(id):
@@ -996,27 +748,20 @@ def attendance_delete(id):
         db.session.commit()
 
     return redirect("/attendance")
+
+
 # ======================
 # LOGOUT
 # ======================
 @app.route("/logout")
 def logout():
-
     session.clear()
     return redirect("/")
 
-
-# =====================
+# ======================
 # RUN
-# =====================
-app = Flask(__name__)
-app.secret_key = "secretkey"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///data.db"
-db = SQLAlchemy(app)
-
-with app.app_context():
-    db.create_all()
-
-
+# ======================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
+

@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>📊 Attendance System</h2>
+
+<!-- SUMMARY -->
+<div class="card-container">
+
+    <div class="card">
+        <h3>Total Records</h3>
+        <p class="count">{{ attendance_total }}</p>
+    </div>
+
+</div>
+
+<!-- ===================== -->
+<!-- ATTENDANCE FORM (FIXED) -->
+<!-- ===================== -->
+<form method="POST">
+
+    <input type="date" name="date" required>
+
+    <input type="number" name="men" placeholder="Men" required>
+    <input type="number" name="women" placeholder="Women" required>
+    <input type="number" name="children" placeholder="Children" required>
+    <input type="number" name="sunday_school" placeholder="Sunday School">
+
+    <button type="submit">Save Attendance</button>
+
+</form>
+
+<!-- TABLE -->
+<h3 style="margin-top:20px;">Attendance Records</h3>
+
+<table style="width:100%; margin-top:10px; color:white; border-collapse:collapse;">
+
+    <tr style="text-align:left;">
+        <th>Date</th>
+        <th>Men</th>
+        <th>Women</th>
+        <th>Children</th>
+        <th>Sunday School</th>
+        <th>Total</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for r in records %}
+    <tr>
+        <td>{{ r.date }}</td>
+        <td>{{ r.men }}</td>
+        <td>{{ r.women }}</td>
+        <td>{{ r.children }}</td>
+        <td>{{ r.sunday_school }}</td>
+        <td>{{ r.total }}</td>
+
+        <!-- ACTIONS -->
+        <td>
+
+            <!-- EDIT -->
+            <button onclick="openAttendanceEdit(
+                '{{ r.id }}',
+                '{{ r.date }}',
+                '{{ r.men }}',
+                '{{ r.women }}',
+                '{{ r.children }}',
+                '{{ r.sunday_school }}'
+            )"
+            style="background:#3b82f6;color:white;padding:5px;border:none;border-radius:5px;">
+                Edit
+            </button>
+
+            <!-- DELETE -->
+            <button onclick="openAttendanceDelete('{{ r.id }}')"
+            style="background:red;color:white;padding:5px;border:none;border-radius:5px;margin-left:10px;">
+                Delete
+            </button>
+
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+<!-- EDIT MODAL -->
+<div id="attendanceEditModal" class="modal">
+
+    <div class="modal-content">
+
+        <h3>Edit Attendance</h3>
+
+        <form id="attendanceEditForm" method="POST">
+
+            <input type="date" name="date" id="aDate" required>
+
+            <input type="number" name="men" id="aMen">
+            <input type="number" name="women" id="aWomen">
+            <input type="number" name="children" id="aChildren">
+            <input type="number" name="sunday_school" id="aSunday">
+
+            <button type="submit">Save Changes</button>
+
+        </form>
+
+        <button onclick="closeAttendanceEdit()" class="close-btn">Close</button>
+
+    </div>
+
+</div>
+
+<!-- DELETE MODAL -->
+<div id="attendanceDeleteModal" class="modal">
+
+    <div class="modal-content">
+
+        <h3>⚠️ Confirm Delete</h3>
+        <p>Are you sure you want to delete this record?</p>
+
+        <form id="attendanceDeleteForm" method="GET">
+            <button type="submit" style="background:red;color:white;">
+                Yes Delete
+            </button>
+        </form>
+
+        <button onclick="closeAttendanceDelete()" class="close-btn">Cancel</button>
+
+    </div>
+
+</div>
+
+<!-- STYLES -->
+<style>
+
+.card-container{
+    display:flex;
+    gap:15px;
+}
+
+.card{
+    background:white;
+    color:black;
+    padding:15px;
+    border-radius:12px;
+}
+
+.count{
+    font-size:20px;
+    font-weight:bold;
+}
+
+/* MODAL */
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    width:300px;
+    color:black;
+}
+
+/* buttons */
+button{
+    margin-top:10px;
+}
+
+.close-btn{
+    background:red;
+    color:white;
+    width:100%;
+    border:none;
+    padding:8px;
+    border-radius:6px;
+}
+
+</style>
+
+<!-- SCRIPT -->
+<script>
+
+function openAttendanceEdit(id, date, men, women, children, sunday){
+
+    document.getElementById("attendanceEditForm").action = "/attendance/edit/" + id;
+
+    document.getElementById("aDate").value = date;
+    document.getElementById("aMen").value = men;
+    document.getElementById("aWomen").value = women;
+    document.getElementById("aChildren").value = children;
+    document.getElementById("aSunday").value = sunday;
+
+    document.getElementById("attendanceEditModal").style.display = "flex";
+}
+
+function closeAttendanceEdit(){
+    document.getElementById("attendanceEditModal").style.display = "none";
+}
+
+function openAttendanceDelete(id){
+    document.getElementById("attendanceDeleteForm").action = "/attendance/delete/" + id;
+    document.getElementById("attendanceDeleteModal").style.display = "flex";
+}
+
+function closeAttendanceDelete(){
+    document.getElementById("attendanceDeleteModal").style.display = "none";
+}
+
+</script>
+
+{% endblock %}

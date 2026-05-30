@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title or "Admin Panel" }}</title>
+
+<style>
+
+/* ======================
+   BODY
+====================== */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #111827);
+    color: white;
+
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+body.loaded {
+    opacity: 1;
+}
+
+/* ======================
+   SIDEBAR
+====================== */
+.sidebar {
+    width: 230px;
+    position: fixed;
+    height: 100%;
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(10px);
+    padding-top: 20px;
+    overflow-x: hidden;
+    transition: 0.3s;
+}
+
+.sidebar.collapsed {
+    width: 0;
+    padding: 0;
+}
+
+/* SIDEBAR TEXT */
+.sidebar h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 12px;
+    color: white;
+    text-decoration: none;
+    transition: 0.3s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar a:hover {
+    background: #2563eb;
+    border-left: 3px solid white;
+    padding-left: 20px;
+}
+
+/* LOGOUT */
+.logout {
+    margin-top: 20px;
+    background: #dc2626;
+}
+
+/* ======================
+   MAIN CONTENT
+====================== */
+.main {
+    margin-left: 240px;
+    padding: 20px;
+    transition: 0.3s;
+}
+
+/* SHIFT WHEN SIDEBAR COLLAPSES */
+.sidebar.collapsed ~ .main {
+    margin-left: 20px;
+}
+
+/* ======================
+   PAGE ANIMATION
+====================== */
+.page {
+    animation: fadeUp 0.4s ease;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* COUNTERS */
+.count {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* ======================
+   TOGGLE BUTTON
+====================== */
+.toggle-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 26px;
+    cursor: pointer;
+    z-index: 1000;
+    color: white;
+    user-select: none;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .main {
+        margin-left: 0;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- TOGGLE BUTTON -->
+<div class="toggle-btn" onclick="toggleSidebar()">
+    ☰
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+
+    <h3>⛪ ADMIN</h3>
+
+    <a href="/dashboard">🏠 Dashboard</a>
+    <a href="/finance">💰 Finance</a>
+    <a href="/attendance">📊 Attendance</a>
+    <a href="/finance/pdf">📄 PDF Report</a>
+
+    <a href="/logout" class="logout">🚪 Logout</a>
+
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main page">
+
+    {% block content %}{% endblock %}
+
+</div>
+
+<!-- ======================
+   SCRIPTS
+====================== -->
+<script>
+
+/* PAGE LOAD ANIMATION */
+window.addEventListener("load", () => {
+    document.body.classList.add("loaded");
+});
+
+/* SMOOTH NAVIGATION */
+document.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", function(e) {
+
+        let href = this.getAttribute("href");
+
+        if(href && href.startsWith("/")) {
+            e.preventDefault();
+
+            document.body.classList.remove("loaded");
+
+            setTimeout(() => {
+                window.location.href = href;
+            }, 200);
+        }
+    });
+});
+
+/* SIDEBAR TOGGLE */
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("collapsed");
+}
+
+</script>
+
+</body>
+</html>

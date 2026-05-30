@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>💰 Finance Dashboard</h2>
+
+<!-- SUMMARY -->
+<div class="card-container">
+
+    <div class="card income">
+        <h3>Total Income</h3>
+        <p class="count">{{ total_income }}</p>
+    </div>
+
+    <div class="card expense">
+        <h3>Total Expense</h3>
+        <p class="count">{{ total_expense }}</p>
+    </div>
+
+    <div class="card balance">
+        <h3>Balance</h3>
+        <p class="count">{{ total_income - total_expense }}</p>
+    </div>
+
+</div>
+
+<!-- FORM -->
+<form method="POST">
+
+    <input type="text" name="category" placeholder="Category" required>
+    <input type="number" name="amount" placeholder="Amount" required>
+
+    <select name="type" required>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+    </select>
+
+    <button type="submit">Save Record</button>
+
+</form>
+
+<!-- PDF -->
+<div style="margin:15px 0;">
+    <a href="/finance/pdf"
+       style="padding:10px 15px;
+              background:#3b82f6;
+              color:white;
+              text-decoration:none;
+              border-radius:8px;">
+        📄 Download PDF Report
+    </a>
+</div>
+
+<!-- TABLE -->
+<h3>Records</h3>
+
+<table style="width:100%; margin-top:10px; color:white; border-collapse:collapse;">
+
+    <tr style="text-align:left;">
+        <th>Category</th>
+        <th>Amount</th>
+        <th>Type</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for r in records %}
+    <tr>
+        <td>{{ r.category }}</td>
+        <td>{{ r.amount }}</td>
+        <td>{{ r.type }}</td>
+
+        <!-- ACTIONS -->
+        <td>
+
+            <!-- EDIT -->
+            <button onclick="openFinanceEdit(
+                '{{ r.id }}',
+                '{{ r.category }}',
+                '{{ r.amount }}',
+                '{{ r.type }}'
+            )"
+            style="background:#3b82f6;color:white;border:none;padding:5px;border-radius:5px;">
+                Edit
+            </button>
+
+            <!-- DELETE -->
+            <button onclick="openFinanceDelete('{{ r.id }}')"
+            style="background:red;color:white;border:none;padding:5px;border-radius:5px;margin-left:10px;">
+                Delete
+            </button>
+
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+<!-- ===================== -->
+<!-- EDIT MODAL -->
+<!-- ===================== -->
+<div id="financeEditModal" class="modal">
+
+    <div class="modal-content">
+
+        <h3>Edit Finance Record</h3>
+
+        <form id="financeEditForm" method="POST">
+
+            <input type="text" name="category" id="fCategory" required>
+            <input type="number" name="amount" id="fAmount" required>
+
+            <select name="type" id="fType">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+
+            <button type="submit">Save Changes</button>
+
+        </form>
+
+        <button onclick="closeFinanceEdit()" class="close-btn">Close</button>
+
+    </div>
+
+</div>
+
+<!-- ===================== -->
+<!-- DELETE MODAL -->
+<!-- ===================== -->
+<div id="financeDeleteModal" class="modal">
+
+    <div class="modal-content">
+
+        <h3>⚠️ Confirm Delete</h3>
+        <p>Are you sure you want to delete this record?</p>
+
+        <form id="financeDeleteForm" method="GET">
+            <button type="submit" style="background:red;color:white;">
+                Yes Delete
+            </button>
+        </form>
+
+        <button onclick="closeFinanceDelete()" class="close-btn">Cancel</button>
+
+    </div>
+
+</div>
+
+<!-- ===================== -->
+<!-- STYLE -->
+<!-- ===================== -->
+<style>
+
+.card-container{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.card{
+    background:white;
+    color:black;
+    padding:15px;
+    border-radius:12px;
+    flex:1;
+    min-width:150px;
+}
+
+.income{border-left:5px solid green;}
+.expense{border-left:5px solid red;}
+.balance{border-left:5px solid blue;}
+
+.count{
+    font-size:20px;
+    font-weight:bold;
+}
+
+form{
+    margin:15px 0;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+input, select{
+    padding:8px;
+}
+
+button{
+    padding:8px 12px;
+}
+
+/* MODAL */
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    width:300px;
+    color:black;
+}
+
+.close-btn{
+    background:red;
+    color:white;
+    width:100%;
+    border:none;
+    padding:8px;
+    border-radius:6px;
+    margin-top:10px;
+}
+
+</style>
+
+<!-- ===================== -->
+<!-- SCRIPT -->
+<!-- ===================== -->
+<script>
+
+/* EDIT */
+function openFinanceEdit(id, category, amount, type){
+
+    document.getElementById("financeEditForm").action = "/finance/edit/" + id;
+
+    document.getElementById("fCategory").value = category;
+    document.getElementById("fAmount").value = amount;
+    document.getElementById("fType").value = type;
+
+    document.getElementById("financeEditModal").style.display = "flex";
+}
+
+function closeFinanceEdit(){
+    document.getElementById("financeEditModal").style.display = "none";
+}
+
+/* DELETE */
+function openFinanceDelete(id){
+    document.getElementById("financeDeleteForm").action = "/finance/delete/" + id;
+    document.getElementById("financeDeleteModal").style.display = "flex";
+}
+
+function closeFinanceDelete(){
+    document.getElementById("financeDeleteModal").style.display = "none";
+}
+
+</script>
+
+{% endblock %}

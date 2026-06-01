@@ -467,6 +467,30 @@ def logout():
     session.clear()
     return redirect("/")
 
+# =========================
+# AUTO ADMIN FIX (ADD HERE)
+# =========================
+
+@app.before_first_request
+def ensure_admin():
+    try:
+        admin = User.query.filter_by(username="admin").first()
+
+        if not admin:
+            admin = User(
+                username="admin",
+                email="admin@church.com",
+                password="love",
+                role="admin"
+            )
+            db.session.add(admin)
+            db.session.commit()
+
+            print("✅ Admin created")
+
+    except Exception as e:
+        print("DB error:", e)
+
 # ======================
 # RUN
 # ======================

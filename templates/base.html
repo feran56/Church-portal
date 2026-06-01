@@ -1,196 +1,248 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{{ title or "Admin Panel" }}</title>
+<meta charset="UTF-8">
+<title>Church Portal</title>
 
 <style>
 
-/* ======================
-   BODY
-====================== */
+/* =========================
+   GLOBAL
+========================= */
 body {
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #0f172a, #111827);
+    font-family: Arial, sans-serif;
+    background: #0f172a;
     color: white;
-
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-}
-
-body.loaded {
-    opacity: 1;
-}
-
-/* ======================
-   SIDEBAR
-====================== */
-.sidebar {
-    width: 230px;
-    position: fixed;
-    height: 100%;
-    background: rgba(17, 24, 39, 0.95);
-    backdrop-filter: blur(10px);
-    padding-top: 20px;
-    overflow-x: hidden;
     transition: 0.3s;
+}
+
+/* =========================
+   DARK MODE
+========================= */
+body.light {
+    background: #f1f5f9;
+    color: #111;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 220px;
+    background: #111827;
+    transition: 0.3s ease;
+    overflow: hidden;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
 }
 
 .sidebar.collapsed {
-    width: 0;
-    padding: 0;
+    width: 70px;
 }
 
-/* SIDEBAR TEXT */
-.sidebar h3 {
+/* HEADER */
+.sidebar-header {
+    padding: 15px;
     text-align: center;
-    margin-bottom: 20px;
+    font-weight: bold;
+    border-bottom: 1px solid #1f2937;
 }
 
-.sidebar a {
-    display: block;
+/* TOGGLE */
+.toggle-btn {
     padding: 12px;
+    cursor: pointer;
+    background: #1f2937;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.toggle-btn:hover {
+    background: #374151;
+}
+
+/* MENU */
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
     color: white;
     text-decoration: none;
     transition: 0.3s;
-    border-left: 3px solid transparent;
+    white-space: nowrap;
+    position: relative;
 }
 
 .sidebar a:hover {
-    background: #2563eb;
-    border-left: 3px solid white;
-    padding-left: 20px;
+    background: #1f2937;
 }
 
-/* LOGOUT */
-.logout {
-    margin-top: 20px;
-    background: #dc2626;
+/* ICON */
+.icon {
+    font-size: 18px;
+    width: 30px;
+    text-align: center;
 }
 
-/* ======================
-   MAIN CONTENT
-====================== */
-.main {
-    margin-left: 240px;
-    padding: 20px;
+/* TEXT */
+.text {
     transition: 0.3s;
 }
 
-/* SHIFT WHEN SIDEBAR COLLAPSES */
+/* COLLAPSE TEXT */
+.sidebar.collapsed a .text {
+    display: none;
+}
+
+.sidebar.collapsed a {
+    justify-content: center;
+}
+
+/* TOOLTIP */
+.sidebar.collapsed a:hover::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 75px;
+    background: #1f2937;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+/* =========================
+   MAIN
+========================= */
+.main {
+    margin-left: 220px;
+    padding: 20px;
+    transition: 0.3s ease;
+}
+
 .sidebar.collapsed ~ .main {
-    margin-left: 20px;
+    margin-left: 70px;
 }
 
-/* ======================
-   PAGE ANIMATION
-====================== */
-.page {
-    animation: fadeUp 0.4s ease;
-}
-
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* COUNTERS */
-.count {
-    font-size: 24px;
+/* =========================
+   COUNTER ANIMATION
+========================= */
+.counter {
+    font-size: 30px;
     font-weight: bold;
+    animation: countUp 1s ease;
 }
 
-/* ======================
-   TOGGLE BUTTON
-====================== */
-.toggle-btn {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    font-size: 26px;
+@keyframes countUp {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* =========================
+   ACTIVE LINK
+========================= */
+.sidebar a.active {
+    background: #2563eb;
+}
+
+/* =========================
+   DARK MODE BUTTON
+========================= */
+.dark-toggle {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    text-align: center;
     cursor: pointer;
-    z-index: 1000;
-    color: white;
-    user-select: none;
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-    .main {
-        margin-left: 0;
-    }
+    padding: 10px;
+    background: #1f2937;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<!-- TOGGLE BUTTON -->
-<div class="toggle-btn" onclick="toggleSidebar()">
-    ☰
-</div>
-
-<!-- SIDEBAR -->
+<!-- ================= SIDEBAR ================= -->
 <div class="sidebar" id="sidebar">
 
-    <h3>⛪ ADMIN</h3>
+    <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
 
-    <a href="/dashboard">🏠 Dashboard</a>
-    <a href="/finance">💰 Finance</a>
-    <a href="/attendance">📊 Attendance</a>
-    <a href="/finance/pdf">📄 PDF Report</a>
+    <div class="sidebar-header">
+        ⛪ Portal
+    </div>
 
-    <a href="/logout" class="logout">🚪 Logout</a>
+    <!-- ORDER FIXED BELOW ONLY -->
+
+    <a href="/dashboard" data-title="Dashboard">
+        <span class="icon">🏠</span>
+        <span class="text">Dashboard</span>
+    </a>
+
+    <a href="/finance" data-title="Finance">
+        <span class="icon">💰</span>
+        <span class="text">Finance</span>
+    </a>
+
+    <a href="/attendance" data-title="Attendance">
+        <span class="icon">📋</span>
+        <span class="text">Attendance</span>
+    </a>
+
+    <a href="/pdf" data-title="PDF Reports">
+        <span class="icon">📄</span>
+        <span class="text">PDF</span>
+    </a>
+
+    <a href="/logout" data-title="Logout">
+        <span class="icon">🚪</span>
+        <span class="text">Logout</span>
+    </a>
+
+    <a href="/change-password" data-title="Change Password">
+        <span class="icon">🔐</span>
+        <span class="text">Change Password</span>
+    </a>
+
+    <div class="dark-toggle" onclick="toggleDarkMode()">
+        🌙
+    </div>
 
 </div>
 
-<!-- MAIN CONTENT -->
-<div class="main page">
+<!-- ================= MAIN ================= -->
+<div class="main">
 
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
 
 </div>
 
-<!-- ======================
-   SCRIPTS
-====================== -->
+<!-- ================= SCRIPT ================= -->
 <script>
-
-/* PAGE LOAD ANIMATION */
-window.addEventListener("load", () => {
-    document.body.classList.add("loaded");
-});
-
-/* SMOOTH NAVIGATION */
-document.querySelectorAll("a").forEach(link => {
-    link.addEventListener("click", function(e) {
-
-        let href = this.getAttribute("href");
-
-        if(href && href.startsWith("/")) {
-            e.preventDefault();
-
-            document.body.classList.remove("loaded");
-
-            setTimeout(() => {
-                window.location.href = href;
-            }, 200);
-        }
-    });
-});
 
 /* SIDEBAR TOGGLE */
 function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("collapsed");
 }
+
+/* DARK MODE */
+function toggleDarkMode() {
+    document.body.classList.toggle("light");
+}
+
+/* ACTIVE LINK */
+const links = document.querySelectorAll(".sidebar a");
+links.forEach(link => {
+    link.addEventListener("click", function() {
+        links.forEach(l => l.classList.remove("active"));
+        this.classList.add("active");
+    });
+});
 
 </script>
 

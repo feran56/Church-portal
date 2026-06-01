@@ -93,3 +93,45 @@ python app.py
 pkill -f python
 python app.py
 nano app.py
+python app.py
+nano app.py
+python app.py
+nano templates/finanance.html
+cd ~/your-project-folder
+ls ~
+cd Church-portal
+ls ~
+cd church_portal
+nano templates/finance.html
+cd
+nano templates/finance.html
+nano templates/attendance.html
+grep -n "db.create_all" app.py
+cd
+python app.py
+grep -n "User.query" app.py
+ls instance
+grep -n "SQLALCHEMY_DATABASE_URI" app.py
+python
+rm -rf instance/church.db instance/data.db instance/portal.db
+python app.py
+python
+python app.py
+nano app.py
+python app.py
+nano templates/login.html
+python app.py
+nano app.py
+nano templates/change_password.html
+nano app.py
+nano templates/dashboard.html
+python app.py
+nano templates/dashboard.html
+python app.py
+nano templates/base.html
+nano templates/dashboard.html
+python app.py
+nano templates/base.html
+python app.py
+nano templetes/base.html
+nano templates/base.html

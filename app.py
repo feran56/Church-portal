@@ -1,5 +1,9 @@
 from flask import Flask, request, redirect, render_template, render_template_string, session, send_file
 from flask_sqlalchemy import SQLAlchemy
+from flask import make_response
+
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import session, redirect, request, render_template, flash
 
 from flask import render_template_string
 from io import BytesIO
@@ -40,6 +44,31 @@ class Attendance(db.Model):
     sunday_school = db.Column(db.Integer)
     total = db.Column(db.Integer)
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    username = db.Column(
+        db.String(100),
+        unique=True,
+        nullable=False
+    )
+
+    email = db.Column(
+        db.String(120),
+        unique=True,
+        nullable=True
+    )
+
+    password = db.Column(
+        db.String(200),
+        nullable=False
+    )
+
+    role = db.Column(
+        db.String(20),
+        default="staff"
+    )
+
 # ======================
 # CREATE TABLES (FIXED FOR RENDER)
 # ======================
@@ -59,60 +88,97 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
 
-        if password == "1234":
-            session["user"] = username
-            return redirect("/dashboard")
+        user = User.query.filter_by(username=username).first()
+
+        if user:
+
+            # CASE 1: hashed password
+            try:
+                valid = check_password_hash(user.password, password)
+            except:
+                valid = False
+
+            # CASE 2: plain text (your current system)
+            if valid or user.password == password:
+
+                # auto-upgrade plain password to hashed
+                if user.password == password:
+                    user.password = generate_password_hash(password)
+                    db.session.commit()
+
+                session["user"] = user.username
+                session["role"] = user.role
+
+                return redirect("/dashboard")
+
+        error = "❌ Invalid username or password"
+
+    return render_template("login.html", error=error)
+
+
+# ======================
+# PASSWORD CHANGE
+# ======================
+@app.route("/change-password", methods=["GET", "POST"])
+def change_password():
+
+    if "user" not in session:
+        return redirect("/")
+
+    message = ""
+
+    user = User.query.filter_by(username=session["user"]).first()
+
+    if request.method == "POST":
+
+        old_password = request.form.get("old_password")
+        new_password = request.form.get("new_password")
+
+        # SAFE CHECK (supports old + hashed)
+        try:
+            valid = check_password_hash(user.password, old_password)
+        except:
+            valid = False
+
+        if valid or user.password == old_password:
+
+            user.password = generate_password_hash(new_password)
+            db.session.commit()
+
+            message = "✅ Password changed successfully"
+
         else:
-            error = "Wrong password"
+            message = "❌ Old password is incorrect"
 
-    return render_template_string("""
-    <html>
-    <head>
-    <style>
-    body{
-        background:white;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        height:100vh;
-        font-family:Arial;
-    }
-    .box{
-        width:300px;
-        padding:20px;
-        box-shadow:0 0 10px rgba(0,0,0,0.2);
-        border-radius:10px;
-        text-align:center;
-    }
-    input{
-        width:90%;
-        padding:10px;
-        margin:5px;
-    }
-    button{
-        width:100%;
-        padding:10px;
-        background:green;
-        color:white;
-        border:none;
-    }
-    .error{color:red;}
-    </style>
-    </head>
+    return render_template("change_password.html", message=message)
 
-    <body>
-    <div class="box">
-        <h2>LOGIN</h2>
-        <form method="POST">
-            <input name="username" placeholder="Username">
-            <input name="password" type="password" placeholder="Password">
-            <button>Login</button>
-        </form>
-        <p class="error">{{error}}</p>
-    </div>
-    </body>
-    </html>
-    """, error=error)
+
+# ======================
+# FORGOT PASSWORD
+# ======================
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+
+    message = ""
+
+    if request.method == "POST":
+
+        username = request.form.get("username")
+        new_password = request.form.get("new_password")
+
+        user = User.query.filter_by(username=username).first()
+
+        if user:
+
+            user.password = new_password
+            db.session.commit()
+
+            message = "✅ Password reset successful"
+
+        else:
+            message = "❌ User not found"
+
+    return render_template("forgot_password.html", message=message)
 
 # ======================
 # DASHBOARD
@@ -169,25 +235,27 @@ def finance():
 
     if request.method == "POST":
 
+        print("FORM DATA:", request.form)
+
+        category = request.form.get("category")
+        amount = request.form.get("amount")
+        ftype = request.form.get("type")
+
         try:
-            category = request.form.get("category")
-            amount = int(request.form.get("amount") or 0)
-            ftype = request.form.get("type")
+            amount = float(amount or 0)
+        except:
+            amount = 0
 
-            new = Finance(
-                category=category,
-                amount=amount,
-                type=ftype
-            )
+        new_record = Finance(
+            category=category,
+            amount=amount,
+            type=ftype
+        )
 
-            db.session.add(new)
-            db.session.commit()
+        db.session.add(new_record)
+        db.session.commit()
 
-            return redirect("/finance")
-
-        except Exception as e:
-            print("FINANCE ERROR:", e)
-            return redirect("/finance")
+        return redirect("/finance")
 
     records = Finance.query.all()
 
@@ -202,34 +270,46 @@ def finance():
     )
 
 
+
 # =====================
 # EDIT FINANCE
 # ====================
-@app.route("/finance/edit/<int:id>", methods=["POST"])
-def finance_edit(id):
+@app.route("/finance/edit", methods=["POST"])
+def finance_edit():
 
     if "user" not in session:
         return redirect("/")
 
-    item = Finance.query.get_or_404(id)
+    record_id = request.form.get("id")
 
-    item.category = request.form.get("category")
-    item.amount = int(request.form.get("amount"))
-    item.type = request.form.get("type")
+    record = Finance.query.get(record_id)
 
-    db.session.commit()
+    if record:
+        record.category = request.form.get("category")
+        record.amount = float(request.form.get("amount"))
+        record.type = request.form.get("type")
+
+        db.session.commit()
 
     return redirect("/finance")
-
 # ======================
 # DELETE FINANCE
 # ======================
-@app.route("/finance/delete/<int:id>")
-def finance_delete(id):
-    item = Finance.query.get_or_404(id)
-    db.session.delete(item)
-    db.session.commit()
-    return redirect("/dashboard")
+@app.route("/finance/delete", methods=["POST"])
+def finance_delete():
+
+    if "user" not in session:
+        return redirect("/")
+
+    record_id = request.form.get("id")
+
+    record = Finance.query.get(record_id)
+
+    if record:
+        db.session.delete(record)
+        db.session.commit()
+
+    return redirect("/finance")
 
 # ======================
 # PDF (FIXED)
@@ -242,9 +322,8 @@ def finance_pdf():
 
     records = Finance.query.all()
 
-    file_path = "finance_report.pdf"
-
-    p = canvas.Canvas(file_path)
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
 
     p.setFont("Helvetica-Bold", 16)
     p.drawString(180, 800, "Finance Report")
@@ -256,9 +335,9 @@ def finance_pdf():
 
     for r in records:
 
-        line = f"{r.category} | {r.amount} | {r.type}"
+        text = f"{r.category} | {r.amount} | {r.type}"
         p.setFont("Helvetica", 10)
-        p.drawString(50, y, line)
+        p.drawString(50, y, text)
 
         y -= 20
 
@@ -279,12 +358,14 @@ def finance_pdf():
 
     p.save()
 
-    return send_file(
-        file_path,
-        as_attachment=True,
-        download_name="finance_report.pdf",
-        mimetype="application/pdf"
-    )
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=finance_report.pdf'
+
+    return response
 
 
 # ======================
@@ -362,12 +443,21 @@ def attendance_edit(id):
 # =====================
 # DELETE ATTENDANCE
 # =====================
-@app.route("/attendance/delete/<int:id>")
-def attendance_delete(id):
-    item = Attendance.query.get_or_404(id)
-    db.session.delete(item)
-    db.session.commit()
-    return redirect("/dashboard")
+@app.route("/attendance/delete", methods=["POST"])
+def attendance_delete():
+
+    if "user" not in session:
+        return redirect("/")
+
+    record_id = request.form.get("id")
+
+    record = Attendance.query.get(record_id)
+
+    if record:
+        db.session.delete(record)
+        db.session.commit()
+
+    return redirect("/attendance")
 
 # ======================
 # LOGOUT

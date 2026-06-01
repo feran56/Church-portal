@@ -2,32 +2,35 @@
 
 {% block content %}
 
-<h2>💰 Finance Dashboard</h2>
+<h2>💰 Finance System</h2>
 
-<!-- SUMMARY -->
+<!-- SUMMARY CARDS -->
 <div class="card-container">
 
-    <div class="card income">
-        <h3>Total Income</h3>
+    <div class="card">
+        <h3>Income</h3>
         <p class="count">{{ total_income }}</p>
     </div>
 
-    <div class="card expense">
-        <h3>Total Expense</h3>
+    <div class="card">
+        <h3>Expense</h3>
         <p class="count">{{ total_expense }}</p>
     </div>
 
-    <div class="card balance">
+    <div class="card">
         <h3>Balance</h3>
         <p class="count">{{ total_income - total_expense }}</p>
     </div>
 
 </div>
 
-<!-- FORM -->
-<form method="POST">
+<!-- ================= ADD FORM ================= -->
+<h3 style="margin-top:20px;">Add Finance Record</h3>
+
+<form method="POST" action="/finance" class="finance-form">
 
     <input type="text" name="category" placeholder="Category" required>
+
     <input type="number" name="amount" placeholder="Amount" required>
 
     <select name="type" required>
@@ -35,28 +38,17 @@
         <option value="expense">Expense</option>
     </select>
 
-    <button type="submit">Save Record</button>
+    <button type="submit" class="save-btn">➕ Add Record</button>
 
 </form>
 
-<!-- PDF -->
-<div style="margin:15px 0;">
-    <a href="/finance/pdf"
-       style="padding:10px 15px;
-              background:#3b82f6;
-              color:white;
-              text-decoration:none;
-              border-radius:8px;">
-        📄 Download PDF Report
-    </a>
-</div>
+<!-- ================= TABLE ================= -->
+<h3 style="margin-top:20px;">Records</h3>
 
-<!-- TABLE -->
-<h3>Records</h3>
+<table style="width:100%; margin-top:10px; color:white;">
 
-<table style="width:100%; margin-top:10px; color:white; border-collapse:collapse;">
-
-    <tr style="text-align:left;">
+    <tr>
+        <th>Date</th>
         <th>Category</th>
         <th>Amount</th>
         <th>Type</th>
@@ -64,130 +56,197 @@
     </tr>
 
     {% for r in records %}
-    <tr>
+    <tr class="row-anim">
+
+        <td>{{ r.date }}</td>
         <td>{{ r.category }}</td>
         <td>{{ r.amount }}</td>
         <td>{{ r.type }}</td>
 
-        <!-- ACTIONS -->
         <td>
 
             <!-- EDIT -->
-            <button onclick="openFinanceEdit(
-                '{{ r.id }}',
-                '{{ r.category }}',
-                '{{ r.amount }}',
-                '{{ r.type }}'
-            )"
-            style="background:#3b82f6;color:white;border:none;padding:5px;border-radius:5px;">
-                Edit
+            <button class="edit-btn"
+                onclick="openEditModal(
+                    '{{ r.id }}',
+                    '{{ r.category }}',
+                    '{{ r.amount }}',
+                    '{{ r.type }}'
+                )">
+                ✏ Edit
             </button>
 
             <!-- DELETE -->
-            <button onclick="openFinanceDelete('{{ r.id }}')"
-            style="background:red;color:white;border:none;padding:5px;border-radius:5px;margin-left:10px;">
-                Delete
+            <button class="delete-btn"
+                onclick="openDeleteModal('{{ r.id }}')">
+                🗑 Delete
             </button>
 
         </td>
+
     </tr>
     {% endfor %}
 
 </table>
 
-<!-- ===================== -->
-<!-- EDIT MODAL -->
-<!-- ===================== -->
-<div id="financeEditModal" class="modal">
+<!-- ================= EDIT MODAL ================= -->
+<div id="editModal" class="modal">
 
     <div class="modal-content">
 
-        <h3>Edit Finance Record</h3>
+        <h3>Edit Record</h3>
 
-        <form id="financeEditForm" method="POST">
+        <form method="POST" action="/finance/edit">
 
-            <input type="text" name="category" id="fCategory" required>
-            <input type="number" name="amount" id="fAmount" required>
+            <input type="hidden" name="id" id="edit_id">
 
-            <select name="type" id="fType">
+            <input type="text" name="category" id="edit_category" required>
+            <input type="number" name="amount" id="edit_amount" required>
+
+            <select name="type" id="edit_type">
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
             </select>
 
-            <button type="submit">Save Changes</button>
+            <button type="submit" class="save-btn">Save Changes</button>
+            <button type="button" onclick="closeEditModal()">Cancel</button>
 
         </form>
-
-        <button onclick="closeFinanceEdit()" class="close-btn">Close</button>
 
     </div>
 
 </div>
 
-<!-- ===================== -->
-<!-- DELETE MODAL -->
-<!-- ===================== -->
-<div id="financeDeleteModal" class="modal">
+<!-- ================= DELETE MODAL ================= -->
+<div id="deleteModal" class="modal">
 
     <div class="modal-content">
 
-        <h3>⚠️ Confirm Delete</h3>
+        <h3>⚠ Confirm Delete</h3>
         <p>Are you sure you want to delete this record?</p>
 
-        <form id="financeDeleteForm" method="GET">
-            <button type="submit" style="background:red;color:white;">
-                Yes Delete
-            </button>
-        </form>
+        <form method="POST" action="/finance/delete">
 
-        <button onclick="closeFinanceDelete()" class="close-btn">Cancel</button>
+            <input type="hidden" name="id" id="delete_id">
+
+            <button type="submit" class="delete-confirm">Yes Delete</button>
+            <button type="button" onclick="closeDeleteModal()">Cancel</button>
+
+        </form>
 
     </div>
 
 </div>
 
-<!-- ===================== -->
-<!-- STYLE -->
-<!-- ===================== -->
+<!-- ================= JS ================= -->
+<script>
+
+function openEditModal(id, category, amount, type){
+    document.getElementById("edit_id").value = id;
+    document.getElementById("edit_category").value = category;
+    document.getElementById("edit_amount").value = amount;
+    document.getElementById("edit_type").value = type;
+
+    document.getElementById("editModal").style.display = "flex";
+}
+
+function closeEditModal(){
+    document.getElementById("editModal").style.display = "none";
+}
+
+function openDeleteModal(id){
+    document.getElementById("delete_id").value = id;
+
+    document.getElementById("deleteModal").style.display = "flex";
+}
+
+function closeDeleteModal(){
+    document.getElementById("deleteModal").style.display = "none";
+}
+
+</script>
+
+<!-- ================= STYLES ================= -->
 <style>
 
+/* CARD UI */
 .card-container{
     display:flex;
     gap:15px;
     flex-wrap:wrap;
+    margin-top:15px;
 }
 
 .card{
-    background:white;
-    color:black;
-    padding:15px;
+    background: linear-gradient(135deg,#1e293b,#0f172a);
+    padding:20px;
     border-radius:12px;
     flex:1;
-    min-width:150px;
+    min-width:180px;
+    color:white;
+    box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    animation:fadeUp 0.5s ease;
 }
 
-.income{border-left:5px solid green;}
-.expense{border-left:5px solid red;}
-.balance{border-left:5px solid blue;}
-
-.count{
-    font-size:20px;
-    font-weight:bold;
+@keyframes fadeUp{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
 }
 
-form{
-    margin:15px 0;
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-}
-
-input, select{
+/* FORM */
+.finance-form input,
+.finance-form select{
+    width:100%;
     padding:8px;
+    margin:5px 0;
+    border-radius:5px;
+    border:none;
 }
 
-button{
-    padding:8px 12px;
+/* TABLE HOVER */
+.row-anim{
+    transition:0.3s;
+}
+
+.row-anim:hover{
+    background:#1f2937;
+}
+
+/* BUTTONS */
+.edit-btn{
+    background:#3b82f6;
+    color:white;
+    padding:5px 10px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.delete-btn{
+    background:#ef4444;
+    color:white;
+    padding:5px 10px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.save-btn{
+    background:#22c55e;
+    color:white;
+    padding:8px;
+    width:100%;
+    border:none;
+    margin-top:10px;
+}
+
+.delete-confirm{
+    background:#ef4444;
+    color:white;
+    padding:8px;
+    width:100%;
+    border:none;
+    margin-top:10px;
 }
 
 /* MODAL */
@@ -204,56 +263,19 @@ button{
 }
 
 .modal-content{
-    background:white;
+    background:#111827;
     padding:20px;
-    border-radius:12px;
-    width:300px;
-    color:black;
+    border-radius:10px;
+    width:320px;
+    color:white;
+    animation:pop 0.25s ease;
 }
 
-.close-btn{
-    background:red;
-    color:white;
-    width:100%;
-    border:none;
-    padding:8px;
-    border-radius:6px;
-    margin-top:10px;
+@keyframes pop{
+    from{transform:scale(0.8); opacity:0;}
+    to{transform:scale(1); opacity:1;}
 }
 
 </style>
-
-<!-- ===================== -->
-<!-- SCRIPT -->
-<!-- ===================== -->
-<script>
-
-/* EDIT */
-function openFinanceEdit(id, category, amount, type){
-
-    document.getElementById("financeEditForm").action = "/finance/edit/" + id;
-
-    document.getElementById("fCategory").value = category;
-    document.getElementById("fAmount").value = amount;
-    document.getElementById("fType").value = type;
-
-    document.getElementById("financeEditModal").style.display = "flex";
-}
-
-function closeFinanceEdit(){
-    document.getElementById("financeEditModal").style.display = "none";
-}
-
-/* DELETE */
-function openFinanceDelete(id){
-    document.getElementById("financeDeleteForm").action = "/finance/delete/" + id;
-    document.getElementById("financeDeleteModal").style.display = "flex";
-}
-
-function closeFinanceDelete(){
-    document.getElementById("financeDeleteModal").style.display = "none";
-}
-
-</script>
 
 {% endblock %}

@@ -470,10 +470,11 @@ def logout():
 # =========================
 # AUTO ADMIN FIX (ADD HERE)
 # =========================
-
-@app.before_first_request
+@app.before_request
 def ensure_admin():
-    try:
+    if not hasattr(app, "admin_created"):
+        app.admin_created = True
+
         admin = User.query.filter_by(username="admin").first()
 
         if not admin:
@@ -487,9 +488,6 @@ def ensure_admin():
             db.session.commit()
 
             print("✅ Admin created")
-
-    except Exception as e:
-        print("DB error:", e)
 
 # ======================
 # RUN

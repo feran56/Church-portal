@@ -1,19 +1,28 @@
-from flask import Flask, request, redirect, render_template, render_template_string, session, send_file
+from flask import Flask, request, redirect, render_template, session
 from flask_sqlalchemy import SQLAlchemy
-from flask import make_response
-
+from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import session, redirect, request, render_template, flash
-
-from flask import render_template_string
 from io import BytesIO
 from reportlab.pdfgen import canvas
 import os
 
+app = Flask(__name__)
+
+# =========================
+# CONFIG (MAIL FIXED)
+# =========================
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+
+app.config["MAIL_USERNAME"] = "akingbadeoluwaferanmi55@gmail.com"
+app.config["MAIL_PASSWORD"] = "kafsfqvoijmhaihi"
+
+mail = Mail(app)
 # ======================
 # APP SETUP
 # ======================
-app = Flask(__name__)
+
 app.secret_key = "secretkey"
 
 # 🔥 RENDER + TERMUX FIX (important)
@@ -67,6 +76,20 @@ class User(db.Model):
     role = db.Column(
         db.String(20),
         default="staff"
+    )
+
+class PasswordReset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    username = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    token = db.Column(
+        db.String(200),
+        unique=True,
+        nullable=False
     )
 
 # ======================
@@ -164,21 +187,107 @@ def forgot_password():
     if request.method == "POST":
 
         username = request.form.get("username")
-        new_password = request.form.get("new_password")
 
         user = User.query.filter_by(username=username).first()
 
         if user:
 
-            user.password = new_password
+            import uuid
+            from flask_mail import Message
+
+            # generate reset token
+            token = str(uuid.uuid4())
+
+            # save token in DB
+            reset = PasswordReset(
+                username=user.username,
+                token=token
+            )
+
+            db.session.add(reset)
             db.session.commit()
 
-            message = "✅ Password reset successful"
+            # reset link
+            reset_link = f"{request.host_url}reset-password/{token}"
+
+            # send email
+            msg = Message(
+                subject="Password Reset Request",
+                sender=app.config["MAIL_USERNAME"],
+                recipients=[user.email]
+            )
+
+            msg.body = f"""
+Hello {user.username},
+
+You requested a password reset.
+
+Click the link below to reset your password:
+
+{reset_link}
+
+If you did not request this, please ignore this email.
+"""
+
+            mail.send(msg)
+
+            message = "📩 Reset link has been sent to your email"
 
         else:
             message = "❌ User not found"
 
     return render_template("forgot_password.html", message=message)
+
+
+# =====================
+# RESET PASSWORD
+# =====================
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+
+    reset = PasswordReset.query.filter_by(token=token).first()
+
+    if not reset:
+        return "Invalid or expired link"
+
+    user = User.query.filter_by(username=reset.username).first()
+
+    message = ""
+
+    if request.method == "POST":
+
+        new_password = request.form.get("new_password")
+
+        user.password = generate_password_hash(new_password)
+
+        db.session.delete(reset)
+        db.session.commit()
+
+        return redirect("/")
+
+    return render_template("reset_password.html", message=message)
+
+# =====================
+# EMAIL
+# =====================
+@app.route("/test-email")
+def test_email():
+
+    try:
+        msg = Message(
+            "Church Portal Test Email",
+            sender=app.config["MAIL_USERNAME"],
+            recipients=[app.config["MAIL_USERNAME"]]  # send to yourself
+        )
+
+        msg.body = "🔥 If you see this, Flask-Mail is working perfectly!"
+
+        mail.send(msg)
+
+        return "✅ Email sent successfully!"
+
+    except Exception as e:
+        return f"❌ Email failed: {str(e)}"
 
 # ======================
 # DASHBOARD
@@ -488,11 +597,5 @@ def ensure_admin():
             db.session.commit()
 
             print("✅ Admin created")
-
-# ======================
-# RUN
-# ======================
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
 
 

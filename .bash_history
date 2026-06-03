@@ -135,3 +135,38 @@ nano templates/base.html
 python app.py
 nano templetes/base.html
 nano templates/base.html
+nano templates/forgot_password.html
+templates/reset_password.html
+nano templates/reset_password.html
+grep -n "forgot_password" app.py
+nano app.py
+sed -n '160,190p' app.py
+grep -n "/reset-password" app.py
+grep -n "class PasswordReset" app.py
+ls templates
+grep -n "class PasswordReset" app.py
+nano app.py
+grep -n "class PasswordReset" app.py
+python
+python app.py
+grep -n "reset_password" app.py
+sed -n '200,240p' app.py
+pip install flask-mail
+nano app.py
+grep -n "class User" app.py
+sed -n '50,80p' app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+pip install flask-mail
+python app.py

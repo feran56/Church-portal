@@ -208,3 +208,9 @@ git commit -m "fix mail config for production"
 git add .
 git commit -m "fix mail config for production"
 git push
+cd your-project-folder
+git status
+git add .
+git commit -m "Fix mail config for forgot password"
+git push origin main
+nano app.py

@@ -214,3 +214,14 @@ git add .
 git commit -m "Fix mail config for forgot password"
 git push origin main
 nano app.py
+git push origin main
+nano app.py
+git add .
+git commit -m "fix smtp email sending"
+git push origin main
+git add .
+git commit -m "fix mail env setup"
+git push origin main
+;5~c~~;5~c~~;5~~c~~;5~~~c~;5~~~~~~~~~~~~~~~2~~c~~~~~~;5~c
+git push origin main
+git push origin main

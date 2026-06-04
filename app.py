@@ -203,9 +203,11 @@ def forgot_password():
 
             import uuid
             from flask_mail import Message
+            from threading import Thread
 
             token = str(uuid.uuid4())
 
+            # save reset token
             reset = PasswordReset(
                 username=user.username,
                 token=token
@@ -214,8 +216,10 @@ def forgot_password():
             db.session.add(reset)
             db.session.commit()
 
+            # create reset link
             reset_link = f"{request.host_url}reset-password/{token}"
 
+            # create email
             msg = Message(
                 "Password Reset Request",
                 sender=app.config["MAIL_USERNAME"],
@@ -225,23 +229,33 @@ def forgot_password():
             msg.body = f"""
 Hello {user.username},
 
-Click below to reset your password:
+You requested a password reset.
+
+Click the link below to reset your password:
 
 {reset_link}
+
+If you did not request this, ignore this message.
 """
 
-            try:
-                mail.send(msg)
-                message = "📩 Reset link has been sent to your email"
+            # 🔥 NON-BLOCKING EMAIL SENDER
+            def send_email(app, msg):
+                with app.app_context():
+                    try:
+                        mail.send(msg)
+                        print("EMAIL SENT SUCCESSFULLY")
+                    except Exception as e:
+                        print("EMAIL ERROR:", e)
 
-            except Exception as e:
-                print("EMAIL ERROR:", e)
-                message = f"❌ Email failed: {e}"
+            Thread(target=send_email, args=(app, msg)).start()
+
+            message = "📩 Reset link has been sent to your email"
 
         else:
             message = "❌ User not found"
 
     return render_template("forgot_password.html", message=message)
+
 
 
 # =====================

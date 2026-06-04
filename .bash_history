@@ -200,3 +200,11 @@ python app.py
 git add .
 git commit -m "restore local run"
 git push
+nano app.py
+python app.py
+git add .
+git commit -m "fix mail config for production"
+
+git add .
+git commit -m "fix mail config for production"
+git push

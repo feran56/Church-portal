@@ -197,3 +197,6 @@ nano app.py
 python app.py
 nano app.py
 python app.py
+git add .
+git commit -m "restore local run"
+git push

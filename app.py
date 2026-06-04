@@ -18,19 +18,28 @@ app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USERNAME"] = "akingbadeoluwaferanmi55@gmail.com"
 app.config["MAIL_PASSWORD"] = "kafsfqvoijmhaihi"
 
-mail = Mail(app)
+mail = Mail(app) 
 # ======================
 # APP SETUP
 # ======================
 
 app.secret_key = "secretkey"
 
-# 🔥 RENDER + TERMUX FIX (important)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+# Database URL
+database_url = os.environ.get(
     "DATABASE_URL",
     "sqlite:///data.db"
 )
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# 🔥 Prevent Render PostgreSQL connection drops
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300
+}
 
 db = SQLAlchemy(app)
 
@@ -595,11 +604,9 @@ def ensure_admin():
             print("✅ Admin created")
 
 
-
-
-
-
-
+# =====================
+# APP RUN
+# =====================
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

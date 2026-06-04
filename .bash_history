@@ -170,3 +170,30 @@ python app.py
 nano app.py
 pip install flask-mail
 python app.py
+nano app.py
+git push
+cat templates/forgot_password.html
+nano templates/forgot_password.html
+sed -n '175,225p' app.py
+nano app.py
+nano templates/reset_password.html
+git push
+git status
+git add .
+git commit -m "latest upgrade"
+git push
+~~~~~~~~~~~~~
+git push
+python 
+nano app.py
+python 
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py

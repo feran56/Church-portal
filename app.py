@@ -195,10 +195,8 @@ def forgot_password():
             import uuid
             from flask_mail import Message
 
-            # generate reset token
             token = str(uuid.uuid4())
 
-            # save token in DB
             reset = PasswordReset(
                 username=user.username,
                 token=token
@@ -207,12 +205,10 @@ def forgot_password():
             db.session.add(reset)
             db.session.commit()
 
-            # reset link
             reset_link = f"{request.host_url}reset-password/{token}"
 
-            # send email
             msg = Message(
-                subject="Password Reset Request",
+                "Password Reset Request",
                 sender=app.config["MAIL_USERNAME"],
                 recipients=[user.email]
             )
@@ -220,18 +216,18 @@ def forgot_password():
             msg.body = f"""
 Hello {user.username},
 
-You requested a password reset.
-
-Click the link below to reset your password:
+Click below to reset your password:
 
 {reset_link}
-
-If you did not request this, please ignore this email.
 """
 
-            mail.send(msg)
+            try:
+                mail.send(msg)
+                message = "📩 Reset link has been sent to your email"
 
-            message = "📩 Reset link has been sent to your email"
+            except Exception as e:
+                print("EMAIL ERROR:", e)
+                message = f"❌ Email failed: {e}"
 
         else:
             message = "❌ User not found"
@@ -599,3 +595,11 @@ def ensure_admin():
             print("✅ Admin created")
 
 
+
+
+
+
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

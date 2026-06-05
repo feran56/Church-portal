@@ -19,15 +19,14 @@ print("MAIL_PASSWORD exists =", bool(os.environ.get("MAIL_PASSWORD")))
 # CONFIG (MAIL FIXED)
 # =========================
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
-app.config["MAIL_PORT"] = 587
-app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USE_SSL"] = False
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USE_SSL"] = True
 
 app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
 app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_USERNAME")
 
-mail = Mail(app) 
+mail = Mail(app)
 # ======================
 # APP SETUP
 # ======================
@@ -264,6 +263,24 @@ If you did not request this, ignore this message.
             message = "❌ User not found"
 
     return render_template("forgot_password.html", message=message)
+
+
+
+@app.route("/test-mail")
+def test_mail():
+    try:
+        msg = Message(
+            subject="Test Email from Flask",
+            sender=app.config["MAIL_USERNAME"],
+            recipients=[app.config["MAIL_USERNAME"]]
+        )
+        msg.body = "If you receive this, Flask email is working 🎉"
+
+        mail.send(msg)
+        return "Email sent successfully!"
+    
+    except Exception as e:
+        return str(e)
 
 
 

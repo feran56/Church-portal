@@ -228,3 +228,12 @@ git push origin main
 git add .
 git commit -m "fix smtp email sending"
 git push origin main
+nano app.p~y
+nano app.py
+git add .
+git commit -m "Fix syntax error in logging config"
+git push origin main
+nano app.py
+git add .
+git commit -m "check mail env vars"
+git push origin main

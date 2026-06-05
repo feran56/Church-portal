@@ -19,12 +19,19 @@ print("MAIL_PASSWORD exists =", bool(os.environ.get("MAIL_PASSWORD")))
 # CONFIG (MAIL FIXED)
 # =========================
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
-app.config["MAIL_PORT"] = 465
-app.config["MAIL_USE_SSL"] = True
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USE_SSL"] = False
+
+# IMPORTANT FIX (prevents Render SMTP issues)
+app.config["MAIL_DEBUG"] = True
+app.config["MAIL_SUPPRESS_SEND"] = False
+app.config["MAIL_MAX_EMAILS"] = None
+app.config["MAIL_ASCII_ATTACHMENTS"] = False
 
 app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
-app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_USERNAME")
+app.config["MAIL_DEFAULT_SENDER"] = app.config["MAIL_USERNAME"]
 
 mail = Mail(app)
 # ======================

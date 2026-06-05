@@ -7,8 +7,13 @@ from reportlab.pdfgen import canvas
 import os
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG
 app = Flask(__name__)
+
+import os
+
+print("MAIL_USERNAME =", os.environ.get("MAIL_USERNAME"))
+print("MAIL_PASSWORD exists =", bool(os.environ.get("MAIL_PASSWORD")))
 
 # =========================
 # CONFIG (MAIL FIXED)

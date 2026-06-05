@@ -225,3 +225,6 @@ git push origin main
 ;5~c~~;5~c~~;5~~c~~;5~~~c~;5~~~~~~~~~~~~~~~2~~c~~~~~~;5~c
 git push origin main
 git push origin main
+git add .
+git commit -m "fix smtp email sending"
+git push origin main

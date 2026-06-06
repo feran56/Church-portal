@@ -83,41 +83,27 @@ class Attendance(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    username = db.Column(
-        db.String(100),
-        unique=True,
-        nullable=False
-    )
+    username = db.Column(db.String(100), unique=True, nullable=False)
 
-    email = db.Column(
-        db.String(120),
-        unique=True,
-        nullable=True
-    )
+    # IMPORTANT: email must NOT be nullable for password reset
+    email = db.Column(db.String(120), unique=True, nullable=False)
 
-    password = db.Column(
-        db.String(200),
-        nullable=False
-    )
+    password = db.Column(db.String(200), nullable=False)
 
-    role = db.Column(
-        db.String(20),
-        default="staff"
-    )
+    role = db.Column(db.String(20), default="staff")
+
 
 class PasswordReset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    username = db.Column(
-        db.String(100),
-        nullable=False
-    )
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    token = db.Column(
-        db.String(200),
-        unique=True,
-        nullable=False
-    )
+    token = db.Column(db.String(255), unique=True, nullable=False)
+
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    # 👇 ADD IT HERE (inside the class)
+    user = db.relationship("User", backref="resets")
 
 # ======================
 # CREATE TABLES (FIXED FOR RENDER)
@@ -206,74 +192,62 @@ def change_password():
 # ======================
 # FORGOT PASSWORD
 # ======================
+from flask import render_template, request, flash, url_for
+from flask_mail import Message
+from itsdangerous import URLSafeTimedSerializer
+
+# serializer for reset token
+s = URLSafeTimedSerializer(app.secret_key)
+
+
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
-
     message = ""
 
     if request.method == "POST":
+        email = request.form.get("email")
 
-        username = request.form.get("username")
-
-        user = User.query.filter_by(username=username).first()
+        # find user
+        user = User.query.filter_by(email=email).first()
 
         if user:
+            # generate reset token
+            token = s.dumps(user.email, salt="password-reset-salt")
 
-            import uuid
-            from flask_mail import Message
-            from threading import Thread
-
-            token = str(uuid.uuid4())
-
-            # save reset token
-            reset = PasswordReset(
-                username=user.username,
-                token=token
+            reset_link = url_for(
+                "reset_password",
+                token=token,
+                _external=True
             )
 
-            db.session.add(reset)
-            db.session.commit()
-
-            # create reset link
-            reset_link = f"{request.host_url}reset-password/{token}"
-
-            # create email
+            # build email
             msg = Message(
-                "Password Reset Request",
-                sender=app.config["MAIL_USERNAME"],
-                recipients=[user.email]
-            )
-
-            msg.body = f"""
+                subject="Password Reset Request",
+                recipients=[user.email],
+                body=f"""
 Hello {user.username},
 
 You requested a password reset.
 
 Click the link below to reset your password:
-
 {reset_link}
 
-If you did not request this, ignore this message.
+If you did not request this, ignore this email.
 """
+            )
 
-            # 🔥 NON-BLOCKING EMAIL SENDER
-            def send_email(app, msg):
-                with app.app_context():
-                    try:
-                        mail.send(msg)
-                        print("EMAIL SENT SUCCESSFULLY")
-                    except Exception as e:
-                        print("EMAIL ERROR:", e)
+            try:
+                mail.send(msg)
+                message = "📩 Reset link sent to your email"
 
-            Thread(target=send_email, args=(app, msg)).start()
-
-            message = "📩 Reset link has been sent to your email"
+            except Exception as e:
+                print("EMAIL ERROR:", e)
+                message = f"❌ Email failed: {e}"
 
         else:
             message = "❌ User not found"
 
     return render_template("forgot_password.html", message=message)
-
 
 
 @app.route("/mail-test")
@@ -293,30 +267,49 @@ def mail_test():
 # =====================
 # RESET PASSWORD
 # =====================
+from werkzeug.security import generate_password_hash
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+
+s = URLSafeTimedSerializer(app.secret_key)
+
+
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_password(token):
 
-    reset = PasswordReset.query.filter_by(token=token).first()
-
-    if not reset:
-        return "Invalid or expired link"
-
-    user = User.query.filter_by(username=reset.username).first()
-
     message = ""
+
+    # find token in DB (IMPORTANT because you created PasswordReset table)
+    record = PasswordReset.query.filter_by(token=token).first()
+
+    if not record:
+        return "❌ Invalid or expired reset link"
+
+    user = User.query.filter_by(username=record.username).first()
+
+    if not user:
+        return "❌ User not found"
 
     if request.method == "POST":
 
-        new_password = request.form.get("new_password")
+        # 👇 THIS IS WHERE IT GOES
+        new_password = request.form.get("password")
 
-        user.password = generate_password_hash(new_password)
+        if not new_password:
+            message = "❌ Password cannot be empty"
+        else:
+            # hash password
+            user.password = generate_password_hash(new_password)
 
-        db.session.delete(reset)
-        db.session.commit()
+            # delete used token (VERY IMPORTANT)
+            db.session.delete(record)
 
-        return redirect("/")
+            db.session.commit()
+
+            message = "✅ Password updated successfully"
 
     return render_template("reset_password.html", message=message)
+
+
 
 # =====================
 # EMAIL

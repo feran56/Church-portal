@@ -19,9 +19,9 @@ print("MAIL_PASSWORD exists =", bool(os.environ.get("MAIL_PASSWORD")))
 # CONFIG (MAIL FIXED)
 # =========================
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
-app.config["MAIL_PORT"] = 587
-app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USE_SSL"] = False
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USE_TLS"] = False
+app.config["MAIL_USE_SSL"] = True
 
 # IMPORTANT FIX (prevents Render SMTP issues)
 app.config["MAIL_DEBUG"] = True
@@ -32,6 +32,9 @@ app.config["MAIL_ASCII_ATTACHMENTS"] = False
 app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
 app.config["MAIL_DEFAULT_SENDER"] = app.config["MAIL_USERNAME"]
+
+MAIL_USE_LOCALTIME = False
+MAIL_DEBUG = True
 
 mail = Mail(app)
 # ======================
@@ -273,22 +276,18 @@ If you did not request this, ignore this message.
 
 
 
-@app.route("/test-mail")
-def test_mail():
+@app.route("/mail-test")
+def mail_test():
     try:
         msg = Message(
-            subject="Test Email from Flask",
-            sender=app.config["MAIL_USERNAME"],
-            recipients=[app.config["MAIL_USERNAME"]]
+            subject="Test Email",
+            recipients=["akingbadeoluwaferanmi55@gmail.com"],
+            body="Render SMTP test"
         )
-        msg.body = "If you receive this, Flask email is working 🎉"
-
         mail.send(msg)
-        return "Email sent successfully!"
-    
+        return "EMAIL SENT"
     except Exception as e:
-        return str(e)
-
+        return f"ERROR: {e}"
 
 
 # =====================

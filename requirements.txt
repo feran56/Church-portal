@@ -5,3 +5,4 @@ Werkzeug
 reportlab
 itsdangerous
 requests
+gunicorn

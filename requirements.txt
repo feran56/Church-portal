@@ -1,6 +1,7 @@
 Flask
-Flask-SQLAlchemy
 Flask-Mail
-requests
-gunicorn
+Flask-SQLAlchemy
+Werkzeug
 reportlab
+itsdangerous
+requests

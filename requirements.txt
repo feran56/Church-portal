@@ -1,7 +1,6 @@
 Flask
 Flask-SQLAlchemy
 Flask-Mail
+requests
 gunicorn
-psycopg2-binary
 reportlab
-Werkzeug

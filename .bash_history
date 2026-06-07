@@ -237,3 +237,11 @@ nano app.py
 git add .
 git commit -m "check mail env vars"
 git push origin main
+nano app.py
+grep -n "mail_test" app.p
+grep -n "mail_test" app.py
+~sed -n '240,300p' app.py
+~sed -n '240,300' app.py
+sed -n '245,260p' app.py
+sed -n '240,300p' app.py
+pip install resend

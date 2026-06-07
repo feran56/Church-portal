@@ -6,3 +6,4 @@ reportlab
 itsdangerous
 requests
 gunicorn
+psycopg2-binary

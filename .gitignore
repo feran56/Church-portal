@@ -11,3 +11,9 @@ __pycache__/
 
 # Python
 *.pyc
+
+.env
+
+
+.bashrc
+

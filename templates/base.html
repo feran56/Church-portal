@@ -17,9 +17,6 @@ body {
     transition: 0.3s;
 }
 
-/* =========================
-   DARK MODE
-========================= */
 body.light {
     background: #f1f5f9;
     color: #111;
@@ -44,7 +41,6 @@ body.light {
     width: 70px;
 }
 
-/* HEADER */
 .sidebar-header {
     padding: 15px;
     text-align: center;
@@ -52,7 +48,6 @@ body.light {
     border-bottom: 1px solid #1f2937;
 }
 
-/* TOGGLE */
 .toggle-btn {
     padding: 12px;
     cursor: pointer;
@@ -65,7 +60,6 @@ body.light {
     background: #374151;
 }
 
-/* MENU */
 .sidebar a {
     display: flex;
     align-items: center;
@@ -79,25 +73,21 @@ body.light {
     border-left: 3px solid transparent;
 }
 
-/* HOVER */
 .sidebar a:hover {
     background: #1f2937;
     border-left: 3px solid #2563eb;
 }
 
-/* ICON */
 .icon {
     font-size: 18px;
     width: 30px;
     text-align: center;
 }
 
-/* TEXT */
 .text {
     transition: 0.3s;
 }
 
-/* COLLAPSE TEXT */
 .sidebar.collapsed a .text {
     display: none;
 }
@@ -106,19 +96,6 @@ body.light {
     justify-content: center;
 }
 
-/* TOOLTIP */
-.sidebar.collapsed a:hover::after {
-    content: attr(data-title);
-    position: absolute;
-    left: 75px;
-    background: #1f2937;
-    padding: 5px 10px;
-    border-radius: 6px;
-    white-space: nowrap;
-    font-size: 12px;
-}
-
-/* ACTIVE LINK */
 .sidebar a.active {
     background: #2563eb;
     border-left: 3px solid #60a5fa;
@@ -138,21 +115,7 @@ body.light {
 }
 
 /* =========================
-   COUNTER ANIMATION
-========================= */
-.counter {
-    font-size: 30px;
-    font-weight: bold;
-    animation: countUp 1s ease;
-}
-
-@keyframes countUp {
-    from { transform: scale(0.5); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-/* =========================
-   DARK MODE BUTTON
+   DARK MODE
 ========================= */
 .dark-toggle {
     position: absolute;
@@ -169,6 +132,224 @@ body.light {
     background: #374151;
 }
 
+/* =========================
+   CALCULATOR (NEW PREMIUM UI)
+========================= */
+.calculator-modal{
+
+    display:none;
+
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background:transparent;
+
+    z-index:99999;
+}
+
+/* CLEAN LIGHT CALCULATOR */
+.calculator-box{
+
+    position:absolute;
+    top:120px;
+    left:200px;
+
+    width:420px;
+
+    background:#111827;
+
+    border-radius:20px;
+
+    padding:20px;
+}
+
+/* HEADER */
+.calc-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:move;
+
+    background:#f1f5f9;
+    padding:8px;
+
+    border-radius:8px;
+
+    font-weight:bold;
+}
+
+/* DISPLAY (BIGGER + CLEAR) */
+#calc-display{
+
+    width:100%;
+
+    height:100px;
+
+    font-size:32px;
+
+    text-align:right;
+
+    margin-bottom:15px;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:10px;
+}
+
+/* BUTTON GRID */
+.calc-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+}
+
+.calc-grid button{
+    height:60px;
+
+    border:none;
+
+    border-radius:8px;
+
+    font-size:18px;
+
+    background:#e2e8f0;
+
+    cursor:pointer;
+}
+
+.calc-grid button:hover{
+    background:#cbd5e1;
+}
+
+/* SPECIAL BUTTONS */
+.clear-btn{
+    background:#ef4444;
+    color:white;
+}
+
+.del-btn{
+    background:#f97316;
+    color:white;
+}
+
+/* ================= ATTENDANCE SYSTEM ================= */
+
+.attendance-modal,
+.delete-modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    justify-content:center;
+    align-items:center;
+    background:transparent;
+    z-index:99999;
+}
+
+/* BOX */
+.attendance-box,
+.delete-box{
+    width:350px;
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+
+/* HEADER */
+.attendance-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+/* INPUTS */
+.attendance-box input{
+    width:100%;
+    margin:5px 0;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+/* BUTTONS */
+.save-btn{
+    width:100%;
+    padding:10px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    margin-top:10px;
+    border-radius:8px;
+}
+
+.danger-btn{
+    background:red;
+    color:white;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+}
+
+/* LOGOUT MODAL */
+.logout-modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+    animation:fadeIn .2s ease;
+}
+
+.logout-box{
+    background:#111827;
+    color:white;
+    padding:25px;
+    border-radius:12px;
+    width:320px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+.logout-actions{
+    display:flex;
+    justify-content:space-between;
+    margin-top:15px;
+}
+
+.cancel-btn{
+    background:#6b7280;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.confirm-btn{
+    background:#ef4444;
+    color:white;
+    padding:10px 15px;
+    border-radius:8px;
+    text-decoration:none;
+}
+
 </style>
 </head>
 
@@ -179,79 +360,267 @@ body.light {
 
     <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
 
-    <div class="sidebar-header">
-        ⛪ Portal
-    </div>
+    <div class="sidebar-header">⛪ Portal</div>
 
-    <!-- ORDER FIXED (DO NOT CHANGE) -->
+    <a href="/dashboard"><span class="icon">🏠</span><span class="text">Dashboard</span></a>
+    <a href="/finance"><span class="icon">💰</span><span class="text">Finance</span></a>
+    <a href="/attendance"><span class="icon">📋</span><span class="text">Attendance</span></a>
 
-    <a href="/dashboard" data-title="Dashboard">
-        <span class="icon">🏠</span>
-        <span class="text">Dashboard</span>
+    <!-- CALCULATOR BUTTON -->
+    <a href="javascript:void(0)" onclick="openCalc()">
+        <span class="icon">🧮</span>
+        <span class="text">Calculator</span>
     </a>
 
-    <a href="/finance" data-title="Finance">
-        <span class="icon">💰</span>
-        <span class="text">Finance</span>
+     <a href="/remittance" data-title="Remittance">
+         <span class="icon">📄</span>
+         <span class="text">Remittance</span>
     </a>
 
-    <a href="/attendance" data-title="Attendance">
-        <span class="icon">📋</span>
-        <span class="text">Attendance</span>
-    </a>
+    <a href="/pdf"><span class="icon">📄</span><span class="text">PDF</span></a>
 
-    <a href="/pdf" data-title="PDF">
-        <span class="icon">📄</span>
-        <span class="text">PDF</span>
-    </a>
+    <a href="/change-password"><span class="icon">🔐</span><span class="text">Change Password</span></a>
 
-    <a href="/logout" data-title="Logout">
+    <a href="javascript:void(0)" onclick="openLogoutModal()">
         <span class="icon">🚪</span>
         <span class="text">Logout</span>
     </a>
 
-    <a href="/change-password" data-title="Change Password">
-        <span class="icon">🔐</span>
-        <span class="text">Change Password</span>
-    </a>
+    <div class="dark-toggle" onclick="toggleDarkMode()">🌙</div>
 
-    <div class="dark-toggle" onclick="toggleDarkMode()">
-        🌙
+	</div>
+
+<!-- ================= MAIN ================= -->
+<div class="main">
+    {% block content %}{% endblock %}
+</div>
+
+<!-- ================= CALCULATOR ================= -->
+<div id="calcModal" style="display:none; position:fixed; inset:0; z-index:99999;">
+
+    <div id="calcBox" style="
+        width:280px;
+        background:white;
+        border-radius:10px;
+        padding:12px;
+        box-shadow:0 0 15px rgba(0,0,0,.25);
+        position:absolute;
+        top:120px;
+        left:120px;
+    ">
+
+        <div id="calcHeader" style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            cursor:move;
+            padding:6px;
+            font-weight:bold;
+            background:#f3f4f6;
+            border-radius:8px;
+        ">
+            <span>🧮 Calculator</span>
+            <button onclick="closeCalc()">✖</button>
+        </div>
+
+        <input id="calcDisplay" readonly style="
+            width:100%;
+            height:65px;
+            font-size:22px;
+            text-align:right;
+            margin:10px 0;
+            padding:6px;
+            box-sizing:border-box;
+        ">
+
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(4,1fr);
+            gap:6px;
+        ">
+
+            <button onclick="clearCalc()">C</button>
+            <button onclick="delOne()">⌫</button>
+            <button onclick="add('%')">%</button>
+            <button onclick="add('/')">÷</button>
+
+            <button onclick="add('7')">7</button>
+            <button onclick="add('8')">8</button>
+            <button onclick="add('9')">9</button>
+            <button onclick="add('*')">×</button>
+
+            <button onclick="add('4')">4</button>
+            <button onclick="add('5')">5</button>
+            <button onclick="add('6')">6</button>
+            <button onclick="add('-')">−</button>
+
+            <button onclick="add('1')">1</button>
+            <button onclick="add('2')">2</button>
+            <button onclick="add('3')">3</button>
+            <button onclick="add('+')">+</button>
+
+            <button onclick="add('0')">0</button>
+            <button onclick="add('.')">.</button>
+            <button onclick="calc()">=</button>
+
+        </div>
+
     </div>
 
 </div>
 
-<!-- ================= MAIN ================= -->
-<div class="main">
+<!-- LOGOUT MODAL -->
+<div id="logoutModal" class="logout-modal">
 
-    {% block content %}
-    {% endblock %}
+    <div class="logout-box">
+
+        <h3>⚠️ Confirm Logout</h3>
+
+        <p>Are you sure you want to logout?</p>
+
+        <div class="logout-actions">
+
+            <button class="cancel-btn" onclick="closeLogoutModal()">Cancel</button>
+
+            <a href="/logout" class="confirm-btn">Yes, Logout</a>
+
+        </div>
+
+    </div>
 
 </div>
 
 <!-- ================= SCRIPT ================= -->
 <script>
 
-/* SIDEBAR TOGGLE */
-function toggleSidebar() {
+function toggleSidebar(){
     document.getElementById("sidebar").classList.toggle("collapsed");
 }
 
-/* DARK MODE */
-function toggleDarkMode() {
+function toggleDarkMode(){
     document.body.classList.toggle("light");
 }
 
-/* ACTIVE LINK (PERSISTENT) */
-const currentPath = window.location.pathname;
+function openCalc(){
+    document.getElementById("calcModal").style.display = "block";
+}
 
-document.querySelectorAll(".sidebar a").forEach(link => {
-    if (link.getAttribute("href") === currentPath) {
-        link.classList.add("active");
+function closeCalc(){
+    document.getElementById("calcModal").style.display = "none";
+}
+
+function add(v){
+    document.getElementById("calcDisplay").value += v;
+}
+
+function clearCalc(){
+    document.getElementById("calcDisplay").value = "";
+}
+
+function delOne(){
+    let d = document.getElementById("calcDisplay");
+
+    d.value = d.value.slice(0,-1);
+}
+
+function calculate(){
+
+    try{
+        document.getElementById("calcDisplay").value =
+        eval(document.getElementById("calcDisplay").value);
     }
-});
+
+    catch{
+        document.getElementById("calcDisplay").value = "Error";
+    }
+}
+
+/* DRAGGABLE */
+
+const box = document.getElementById("calcBox");
+const header = document.getElementById("calcHeader");
+
+let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+header.addEventListener("mousedown", startDrag);
+document.addEventListener("mousemove", drag);
+document.addEventListener("mouseup", stopDrag);
+
+// TOUCH SUPPORT (VERY IMPORTANT FOR PHONE)
+header.addEventListener("touchstart", startDragTouch);
+document.addEventListener("touchmove", dragTouch);
+document.addEventListener("touchend", stopDrag);
+
+function startDrag(e){
+
+    isDragging = true;
+
+    offsetX = e.clientX - box.offsetLeft;
+    offsetY = e.clientY - box.offsetTop;
+}
+
+function drag(e){
+
+    if(!isDragging) return;
+
+    box.style.left = (e.clientX - offsetX) + "px";
+    box.style.top = (e.clientY - offsetY) + "px";
+}
+
+function stopDrag(){
+    isDragging = false;
+}
+
+function startDragTouch(e){
+
+    isDragging = true;
+
+    let touch = e.touches[0];
+
+    offsetX = touch.clientX - box.offsetLeft;
+    offsetY = touch.clientY - box.offsetTop;
+}
+
+function dragTouch(e){
+
+    if(!isDragging) return;
+
+    let touch = e.touches[0];
+
+    box.style.left = (touch.clientX - offsetX) + "px";
+    box.style.top = (touch.clientY - offsetY) + "px";
+}
+
+/* ================= ATTENDANCE SYSTEM JS ================= */
+
+function openAttendance(){
+    document.getElementById("attendanceModal").style.display="flex";
+}
+
+function closeAttendance(){
+    document.getElementById("attendanceModal").style.display="none";
+}
+
+function openDelete(id){
+    document.getElementById("deleteModal").style.display="flex";
+    document.getElementById("deleteForm").action = "/attendance/delete/" + id;
+}
+
+function closeDelete(){
+    document.getElementById("deleteModal").style.display="none";
+}
+
+
+function openLogoutModal(){
+    document.getElementById("logoutModal").style.display="flex";
+}
+
+function closeLogoutModal(){
+    document.getElementById("logoutModal").style.display="none";
+}
 
 </script>
-
 </body>
 </html>

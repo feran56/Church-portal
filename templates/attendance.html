@@ -2,283 +2,84 @@
 
 {% block content %}
 
-<h2>📊 Attendance System PRO</h2>
+<div class="attendance-header">
+    <h1>📋 Attendance Management</h1>
+    <p>Select a category to record attendance</p>
+</div><div class="attendance-grid"><a href="/attendance/service" class="attendance-card">
+    <div class="card-icon">⛪</div>
+    <div class="card-name">Service</div>
+</a><a href="/attendance/sunday_school" class="attendance-card">
+    <div class="card-icon">📖</div>
+    <div class="card-name">Sunday School</div>
+</a><a href="/attendance/house_fellowship" class="attendance-card">
+    <div class="card-icon">🏠</div>
+    <div class="card-name">House Fellowship</div>
+</a><a href="/attendance/evangelism" class="attendance-card">
+    <div class="card-icon">📢</div>
+    <div class="card-name">Evangelism</div>
+</a></div><style>
 
-<!-- SUMMARY CARD -->
-<div class="card-container">
-
-    <div class="card">
-        <h3>Total Records</h3>
-        <p class="count">{{ attendance_total }}</p>
-    </div>
-
-</div>
-
-<!-- ================= ADD FORM ================= -->
-<h3 style="margin-top:20px;">Add Attendance</h3>
-
-<form method="POST" action="/attendance" class="form-box">
-
-    <input type="date" name="date" required>
-
-    <input type="number" name="men" placeholder="Men" required>
-    <input type="number" name="women" placeholder="Women" required>
-    <input type="number" name="children" placeholder="Children" required>
-    <input type="number" name="sunday_school" placeholder="Sunday School" required>
-
-    <button type="submit" class="btn-green">➕ Add Attendance</button>
-
-</form>
-
-<!-- ================= TABLE ================= -->
-<h3 style="margin-top:20px;">Records</h3>
-
-<table class="table">
-
-    <tr>
-        <th>Date</th>
-        <th>Men</th>
-        <th>Women</th>
-        <th>Children</th>
-        <th>Sunday School</th>
-        <th>Total</th>
-        <th>Actions</th>
-    </tr>
-
-    {% for r in records %}
-    <tr class="row-anim">
-
-        <td>{{ r.date }}</td>
-        <td>{{ r.men }}</td>
-        <td>{{ r.women }}</td>
-        <td>{{ r.children }}</td>
-        <td>{{ r.sunday_school }}</td>
-        <td>{{ r.total }}</td>
-
-        <td>
-
-            <!-- EDIT -->
-            <button class="btn-blue"
-                onclick="openEditAtt(
-                    '{{ r.id }}',
-                    '{{ r.date }}',
-                    '{{ r.men }}',
-                    '{{ r.women }}',
-                    '{{ r.children }}',
-                    '{{ r.sunday_school }}'
-                )">
-                ✏ Edit
-            </button>
-
-            <!-- DELETE -->
-            <button class="btn-red"
-                onclick="openDeleteAtt('{{ r.id }}')">
-                🗑 Delete
-            </button>
-
-        </td>
-
-    </tr>
-    {% endfor %}
-
-</table>
-
-<!-- ================= EDIT MODAL ================= -->
-<div id="editAttModal" class="modal">
-
-    <div class="modal-box pro-modal">
-
-        <h3>✏ Edit Attendance</h3>
-
-        <form method="POST" action="/attendance/edit">
-
-            <input type="hidden" id="aid" name="id">
-
-            <input type="date" id="adate" name="date" required>
-
-            <input type="number" id="amen" name="men" placeholder="Men">
-            <input type="number" id="awomen" name="women" placeholder="Women">
-            <input type="number" id="achild" name="children" placeholder="Children">
-            <input type="number" id="asunday" name="sunday_school" placeholder="Sunday School">
-
-            <button class="btn-green">Save Changes</button>
-            <button type="button" class="btn-gray" onclick="closeEditAtt()">Cancel</button>
-
-        </form>
-
-    </div>
-
-</div>
-
-<!-- ================= DELETE MODAL ================= -->
-<div id="deleteAttModal" class="modal">
-
-    <div class="modal-box pro-modal">
-
-        <h3>🗑 Delete Attendance</h3>
-        <p class="danger-text">Are you sure? This cannot be undone.</p>
-
-        <form method="POST" action="/attendance/delete">
-
-            <input type="hidden" id="did" name="id">
-
-            <button class="btn-red">Yes Delete</button>
-            <button type="button" class="btn-gray" onclick="closeDeleteAtt()">Cancel</button>
-
-        </form>
-
-    </div>
-
-</div>
-
-<!-- ================= JS ================= -->
-<script>
-
-function openEditAtt(id,d,m,w,c,s){
-
-document.getElementById("aid").value=id;
-document.getElementById("adate").value=d;
-document.getElementById("amen").value=m;
-document.getElementById("awomen").value=w;
-document.getElementById("achild").value=c;
-document.getElementById("asunday").value=s;
-
-document.getElementById("editAttModal").style.display="flex";
-
+.attendance-header{
+    text-align:center;
+    margin-bottom:30px;
 }
 
-function closeEditAtt(){
-document.getElementById("editAttModal").style.display="none";
+.attendance-header h1{
+    color:white;
+    font-size:32px;
+    margin-bottom:5px;
 }
 
-function openDeleteAtt(id){
-
-document.getElementById("did").value=id;
-
-document.getElementById("deleteAttModal").style.display="flex";
-
+.attendance-header p{
+    color:#b0b0b0;
 }
 
-function closeDeleteAtt(){
-document.getElementById("deleteAttModal").style.display="none";
+.attendance-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+    gap:20px;
 }
 
-</script>
+.attendance-card{
 
-<!-- ================= STYLES ================= -->
-<style>
+    text-decoration:none;
 
-/* CARDS */
-.card-container{
+    border-radius:25px;
+
+    height:170px;
+
     display:flex;
-    gap:15px;
-    flex-wrap:wrap;
-}
+    flex-direction:column;
 
-.card{
-    background:linear-gradient(135deg,#1e293b,#0f172a);
-    padding:18px;
-    border-radius:12px;
-    color:white;
-    animation:fadeUp 0.4s ease;
-}
-
-@keyframes fadeUp{
-    from{opacity:0; transform:translateY(10px);}
-    to{opacity:1; transform:translateY(0);}
-}
-
-/* FORM */
-.form-box input{
-    width:100%;
-    padding:8px;
-    margin:5px 0;
-    border-radius:6px;
-    border:none;
-}
-
-/* TABLE */
-.table{
-    width:100%;
-    margin-top:10px;
-    color:white;
-}
-
-.row-anim:hover{
-    background:#1f2937;
-    transition:0.3s;
-}
-
-/* BUTTONS */
-.btn-blue{
-    background:#3b82f6;
-    color:white;
-    padding:5px;
-    border:none;
-    border-radius:6px;
-}
-
-.btn-red{
-    background:#ef4444;
-    color:white;
-    padding:5px;
-    border:none;
-    border-radius:6px;
-}
-
-.btn-green{
-    background:#22c55e;
-    color:white;
-    padding:8px;
-    border:none;
-    border-radius:6px;
-    width:100%;
-    margin-top:10px;
-}
-
-.btn-gray{
-    background:#334155;
-    color:white;
-    padding:8px;
-    border:none;
-    border-radius:6px;
-    width:100%;
-    margin-top:5px;
-}
-
-/* MODAL */
-.modal{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.6);
     justify-content:center;
     align-items:center;
-}
 
-/* PRO MODAL BOX */
-.pro-modal{
-    background:linear-gradient(135deg,#0f172a,#1e293b);
-    padding:20px;
-    border-radius:14px;
-    width:340px;
+    background:#1e293b;
+
+    transition:.3s;
+
     color:white;
-    animation:pop 0.2s ease;
 }
 
-@keyframes pop{
-    from{transform:scale(0.8); opacity:0;}
-    to{transform:scale(1); opacity:1;}
+.attendance-card:hover{
+
+    transform:translateY(-5px);
+
+    background:#2563eb;
 }
 
-.danger-text{
-    color:#f87171;
-    font-size:14px;
+.card-icon{
+
+    font-size:45px;
+
+    margin-bottom:10px;
 }
 
-</style>
+.card-name{
 
-{% endblock %}
+    font-size:18px;
+
+    font-weight:bold;
+}
+
+</style>{% endblock %}

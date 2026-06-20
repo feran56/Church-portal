@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>💰 {{ category }}</h2>
+
+<h3>Total: ₦{{ total }}</h3>
+
+<form method="POST">
+
+    <input type="date" name="date"
+           value="{{ today }}"
+           required>
+
+    <input type="number"
+           name="amount"
+           placeholder="Amount"
+           required>
+
+    <select name="trans_type" required>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+    </select>
+
+    <button type="submit">Save Record</button>
+
+</form>
+
+<br>
+
+<table border="1" width="100%">
+
+    <tr>
+        <th>Date</th>
+        <th>Amount</th>
+        <th>Type</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for r in records %}
+    <tr>
+
+        <td>{{ r.date }}</td>
+        <td>{{ r.amount }}</td>
+        <td>{{ r.trans_type }}</td>
+
+        <td>
+
+            <button onclick="openEdit(
+                '{{ r.id }}',
+                '{{ r.amount }}',
+                '{{ r.trans_type }}'
+            )">
+                Edit
+            </button>
+
+            <button onclick="openDelete('{{ r.id }}')">
+                Delete
+            </button>
+
+        </td>
+
+    </tr>
+    {% endfor %}
+
+</table>
+
+
+<!-- EDIT MODAL -->
+
+<div id="editModal"
+     style="display:none;
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,.7);">
+
+    <div style="
+        background:white;
+        width:300px;
+        margin:100px auto;
+        padding:20px;">
+
+        <form method="POST"
+              action="/finance/edit">
+
+            <input type="hidden"
+                   name="id"
+                   id="edit_id">
+
+            <input type="number"
+                   name="amount"
+                   id="edit_amount"
+                   required>
+
+            <select name="trans_type"
+                    id="edit_type">
+
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+
+            </select>
+
+            <button type="submit">
+                Save
+            </button>
+
+            <button type="button"
+                    onclick="closeEdit()">
+                Cancel
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- DELETE MODAL -->
+
+<div id="deleteModal"
+     style="display:none;
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,.7);">
+
+    <div style="
+        background:white;
+        width:300px;
+        margin:100px auto;
+        padding:20px;">
+
+        <form method="POST"
+              action="/finance/delete">
+
+            <input type="hidden"
+                   name="id"
+                   id="delete_id">
+
+            <h3>Delete Record?</h3>
+
+            <button type="submit">
+                Yes Delete
+            </button>
+
+            <button type="button"
+                    onclick="closeDelete()">
+                Cancel
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function openEdit(id, amount, type){
+
+    document.getElementById("edit_id").value=id;
+    document.getElementById("edit_amount").value=amount;
+    document.getElementById("edit_type").value=type;
+
+    document.getElementById("editModal").style.display="block";
+}
+
+function closeEdit(){
+    document.getElementById("editModal").style.display="none";
+}
+
+function openDelete(id){
+
+    document.getElementById("delete_id").value=id;
+
+    document.getElementById("deleteModal").style.display="block";
+}
+
+function closeDelete(){
+    document.getElementById("deleteModal").style.display="none";
+}
+
+</script>
+
+{% endblock %}

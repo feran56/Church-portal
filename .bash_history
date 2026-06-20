@@ -245,3 +245,157 @@ grep -n "mail_test" app.py
 sed -n '245,260p' app.py
 sed -n '240,300p' app.py
 pip install resend
+git push origin main
+nano app.py
+pip install requests
+nano app.py
+grep -n "def send_email" app.py
+sed -n '1,40p' app.py
+grep -n "mail.send" app.py
+nano app.py
+git statu
+git add . && git commit -m "update project" && git push origin main
+git push origin main
+git status
+nano requirements.txt
+git add requirements.txt
+git commit -m "fix missing requests dependency"
+git push origin main
+nano alp
+nano app.py
+python app.py
+~~~~~~~~~~~~~~;5~c~~~~~;5~~~~~~~~~~~~~~
+python app.py
+~~~~~~~~~~~~~~~~~~;5~c~~~;5~~c~~;5~~c~~;5~c~~;5~~c~~;5~~
+python app.py
+cp app.py app_old_backup.py
+cp church.db church_backup.db
+pkg update
+pkg install python git
+pip install flask
+pip install flask-sqlalchemy
+pip install werkzeug
+pip install requests
+pip install reportlab
+pip install itsdangerous
+pip install gunicorn
+mkdir church-portal
+cd church-portal
+mkdir templates
+mkdir static
+touch app.py
+pwd
+ls
+nano app.py
+nana app.py~~~~
+nano app.pu~~~~
+nano app.py~~
+nano templates/base.html~~~~~~~
+python app.py~~~
+nano app.py~~~
+python app.py~~~
+nano app.py~~~~
+python app.py~~~~
+nano app.py~
+nano app.py~~~~~~~~~~
+rm church.db~~~~
+python app.py
+find . -name "*.db"
+pip install requests~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rm instance/data.db
+rm instance/church.db
+find . -name "*.db"
+python app.py
+nano app.py
+python app.py
+nano app.py
+nano templates/finance.html
+python app.py
+nano app.py
+python app.py
+nano templates/finance_category.html
+nano templates/remittance.html
+python app.py
+~
+nano templates/remittance.html
+python app.py
+grep -n "class Finance" -A 80 app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+python app.py
+nano app.py
+nano templates/remittance.html
+python app.py
+nano templates/remittance.html
+python app.py
+nano templates/remittance.html
+python app.py
+nano templates/remittance.html
+python app.py
+
+python app.py
+nano templates/remittance.html
+python app.py
+nano templates/base.html
+cat templates/base.html
+nano templates/base.html
+python app.py
+nano templates/base.html
+python app.py
+nano templates/base.html
+python app.py
+wc -l templates/base.html
+sed -n '260,360p' templates/base.htm
+sed -n '260,360p' templates/base.html
+sed -n '360,421p' templates/base.html
+nano templates/base.html
+python app.py
+nano app.py
+rm instance/church.db
+python app.py
+rm instance/church.db
+wc -l templates/attendance.html
+nano templates/attendance.html
+rm instance/church.db
+python app.py
+nano templates/attendance.html
+python app.py
+nano app.py
+python app.py
+nano templates/attendance_service.html
+nano templates/attendance_sunday_school.html
+nano templates/attendance_house_fellowship.html
+nano templates/attendance_evangelism.html
+python app.py
+grep -A 30 "class Attendance" app.py
+nano app.py
+python app.py
+nano templates/attendance_service.html
+python app.py
+nano templates/attendance_house_fellowship.html
+nano templates/attendance_evangelism.html
+nano templates/attendance_sunday_school.html
+nano templates/attendance_evangelism.html
+nano templates/attendance_house_fellowship.html
+nano templates/base.html
+python app.py
+grep -A 30 "login" app.py
+grep -A 30 "User" app.py
+grep -A 20 "change_password" app.py
+ls templates
+head -50 templates/change_password.html
+head -50 templates/forgot_password.html
+head -50 templates/reset_password.html
+grep -n "forgot" templates/login.html
+head -100 templates/login.html
+nano templates/~forgot_password.html
+nano templates/forgot_password.html
+nano templates/reset_password.html
+nano templates/change_password.html
+nano templates/login.html
+python app.py~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+nano app.py
+python app.py

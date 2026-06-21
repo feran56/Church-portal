@@ -258,14 +258,12 @@ button{
 
         <h3>Delete Record?</h3>
 
-        <form method="POST" action="/finance/delete">
-
-            <input type="hidden" name="id" id="delete_id">
-
-            <button class="delete-btn-confirm" type="submit">Yes Delete</button>
-            <button type="button" class="cancel-btn" onclick="closeDelete()">Cancel</button>
-
-        </form>
+     <form id="deleteForm" method="POST">
+     <button class="delete-btn-confirm" type="submit">
+        Yes Delete
+    </button>
+       
+        </form> 
 
     </div>
 
@@ -289,7 +287,9 @@ function closeEdit(){
 }
 
 function openDelete(id){
-    document.getElementById("delete_id").value = id;
+    document.getElementById("deleteForm").action =
+    "/delete_finance/" + id;
+
     document.getElementById("deleteModal").style.display = "flex";
 }
 

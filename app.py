@@ -8,7 +8,7 @@ import requests
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
+from flask import request
 
 from datetime import date
 
@@ -483,11 +483,12 @@ def finance_edit():
 # ====================
 @app.route("/delete_finance/<int:id>", methods=["POST"])
 def delete_finance(id):
-    record = Finance.query.get(id)
-    if record:
-        db.session.delete(record)
-        db.session.commit()
-    return redirect("/finance")
+    record = Finance.query.get_or_404(id)
+
+    db.session.delete(record)
+    db.session.commit()
+
+    return redirect(request.referrer)
 
 
 # ======================

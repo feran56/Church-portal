@@ -135,79 +135,95 @@ body.light {
 /* =========================
    CALCULATOR (NEW PREMIUM UI)
 ========================= */
-.calculator-modal{
-
-    display:none;
-
-    position:fixed;
-
-    top:0;
-    left:0;
-
-    width:100%;
-    height:100%;
-
-    background:transparent;
-
-    z-index:99999;
+#calcModal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    background: transparent;
 }
 
-/* CLEAN LIGHT CALCULATOR */
+#calcModal {
+    background: transparent;
+
+#calcBox{
+    touch-action:none;
+    will-change:transform;
+}
+    
+}
+
+#calcBox {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 10000;
+    pointer-events: auto;
+}
+
 .calculator-box{
-
-    position:absolute;
-    top:120px;
-    left:200px;
-
-    width:420px;
-
-    background:#111827;
-
-    border-radius:20px;
-
-    padding:20px;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 99999;
 }
+
+.calculator-box{
+    pointer-events: auto;
+}
+
+/* ===== MODERN GLASS CALCULATOR ===== */
+.calculator-box{
+    width: 280px;   /* smaller size */
+    background: rgba(20,20,30,0.95);
+    border-radius: 18px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    padding: 15px;
+    color: white;
+    position: absolute;
+    cursor: grab;
+}    
+
 
 /* HEADER */
-.calc-header{
+#calcHeader{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    cursor:move;
-
-    background:#f1f5f9;
-    padding:8px;
-
-    border-radius:8px;
-
     font-weight:bold;
+    margin-bottom:10px;
+    cursor: move;
 }
 
-/* DISPLAY (BIGGER + CLEAR) */
-#calc-display{
-
+/* DISPLAY */
+#calcDisplay{
     width:100%;
-
-    height:100px;
-
-    font-size:32px;
-
+    height:50px;
+    font-size:22px;
     text-align:right;
-
-    margin-bottom:15px;
-
-    border:none;
-
-    border-radius:10px;
-
     padding:10px;
+    border:none;
+    border-radius:10px;
+    margin-bottom:10px;
+    background:#111;
+    color:#00ffcc;
 }
 
 /* BUTTON GRID */
-.calc-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:8px;
+.calculator-box button{
+    width: 22%;
+    margin:2%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    background:#2a2a3a;
+    color:white;
+    transition:0.2s;
+}
+
+.calculator-box button:hover{
+    background:#00ffcc;
+    color:black;
 }
 
 .calc-grid button{
@@ -396,7 +412,7 @@ body.light {
 </div>
 
 <!-- ================= CALCULATOR ================= -->
-<div id="calcModal" style="display:none; position:fixed; inset:0; z-index:99999;">
+<div id="calcModal" style="display:none;">
 
     <div id="calcBox" style="
         width:280px;
@@ -461,8 +477,7 @@ body.light {
 
             <button onclick="add('0')">0</button>
             <button onclick="add('.')">.</button>
-            <button onclick="calc()">=</button>
-
+            <button onclick="calculate()">=</button>
         </div>
 
     </div>
@@ -535,91 +550,93 @@ function calculate(){
     }
 }
 
-/* DRAGGABLE */
+// ===== SMOOTH CALCULATOR DRAG =====
 
-const box = document.getElementById("calcBox");
-const header = document.getElementById("calcHeader");
+const calcBox = document.getElementById("calcBox");
+const calcHeader = document.getElementById("calcHeader");
 
-let isDragging = false;
-let offsetX = 0;
-let offsetY = 0;
+let dragging = false;
+let startX = 0;
+let startY = 0;
+let currentX = 0;
+let currentY = 0;
 
-header.addEventListener("mousedown", startDrag);
-document.addEventListener("mousemove", drag);
-document.addEventListener("mouseup", stopDrag);
 
-// TOUCH SUPPORT (VERY IMPORTANT FOR PHONE)
-header.addEventListener("touchstart", startDragTouch);
-document.addEventListener("touchmove", dragTouch);
-document.addEventListener("touchend", stopDrag);
+function dragStart(e){
 
-function startDrag(e){
+    dragging = true;
 
-    isDragging = true;
+    const point = e.touches ? e.touches[0] : e;
 
-    offsetX = e.clientX - box.offsetLeft;
-    offsetY = e.clientY - box.offsetTop;
-}
+    startX = point.clientX - currentX;
+    startY = point.clientY - currentY;
 
-function drag(e){
-
-    if(!isDragging) return;
-
-    box.style.left = (e.clientX - offsetX) + "px";
-    box.style.top = (e.clientY - offsetY) + "px";
-}
-
-function stopDrag(){
-    isDragging = false;
-}
-
-function startDragTouch(e){
-
-    isDragging = true;
-
-    let touch = e.touches[0];
-
-    offsetX = touch.clientX - box.offsetLeft;
-    offsetY = touch.clientY - box.offsetTop;
-}
-
-function dragTouch(e){
-
-    if(!isDragging) return;
-
-    let touch = e.touches[0];
-
-    box.style.left = (touch.clientX - offsetX) + "px";
-    box.style.top = (touch.clientY - offsetY) + "px";
-}
-
-/* ================= ATTENDANCE SYSTEM JS ================= */
-
-function openAttendance(){
-    document.getElementById("attendanceModal").style.display="flex";
-}
-
-function closeAttendance(){
-    document.getElementById("attendanceModal").style.display="none";
-}
-
-function openDelete(id){
-    document.getElementById("deleteModal").style.display="flex";
-    document.getElementById("deleteForm").action = "/attendance/delete/" + id;
-}
-
-function closeDelete(){
-    document.getElementById("deleteModal").style.display="none";
+    calcBox.style.transition = "none";
 }
 
 
-function openLogoutModal(){
-    document.getElementById("logoutModal").style.display="flex";
+function dragMove(e){
+
+    if(!dragging) return;
+
+    const point = e.touches ? e.touches[0] : e;
+
+
+    currentX = point.clientX - startX;
+    currentY = point.clientY - startY;
+
+
+    calcBox.style.transform =
+    `translate(${currentX}px, ${currentY}px)`;
 }
 
-function closeLogoutModal(){
-    document.getElementById("logoutModal").style.display="none";
+
+function dragEnd(){
+
+    dragging = false;
+
+    calcBox.style.transition =
+    "0.15s ease";
 }
+
+
+
+calcHeader.addEventListener(
+"mousedown",
+dragStart
+);
+
+
+document.addEventListener(
+"mousemove",
+dragMove
+);
+
+
+document.addEventListener(
+"mouseup",
+dragEnd
+);
+
+
+// Mobile
+
+calcHeader.addEventListener(
+"touchstart",
+dragStart
+);
+
+
+document.addEventListener(
+"touchmove",
+dragMove
+);
+
+
+document.addEventListener(
+"touchend",
+dragEnd
+);
 
 </script>
 </body>

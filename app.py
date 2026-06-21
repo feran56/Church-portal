@@ -481,18 +481,13 @@ def finance_edit():
 # ====================
 # DELETE FINANCE
 # ====================
-@app.route("/finance/delete", methods=["POST"])
-def finance_delete():
-
-    record_id = request.form.get("id")
-
-    record = Finance.query.get(record_id)
-
+@app.route("/delete_finance/<int:id>", methods=["POST"])
+def delete_finance(id):
+    record = Finance.query.get(id)
     if record:
         db.session.delete(record)
         db.session.commit()
-
-    return redirect(request.referrer)
+    return redirect("/finance")
 
 
 # ======================

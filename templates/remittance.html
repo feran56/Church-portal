@@ -111,6 +111,41 @@ td{
     }
 }
 
+@media print {
+
+    body {
+        zoom: 0.85;   /* reduces overflow */
+    }
+
+    .container {
+        display: flex;
+        gap: 40px; /* creates space between SS/HF and money section */
+        align-items: flex-start;
+    }
+
+    .left {
+        width: 60%;
+    }
+
+    .right {
+        width: 40%;
+        padding-left: 20px;
+    }
+
+    input {
+        font-size: 12px;
+    }
+
+    button {
+        display: none; /* hides print button */
+    }
+}
+
+@page {
+    size: A4;
+    margin: 20mm;
+}
+
 </style>
 
 <div class="sheet">

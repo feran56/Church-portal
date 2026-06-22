@@ -15,6 +15,7 @@ from datetime import date
 today = date.today().isoformat()
 
 from datetime import date, datetime
+from flask import session
 
 app = Flask(__name__)
 

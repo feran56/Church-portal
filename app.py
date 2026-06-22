@@ -264,7 +264,6 @@ with app.app_context():
         admin = User(
              username="admin",
             email="akingbadeoluwaferanmi55@gmail.com",
-            password=generate_password_hash("1234"),
             role="admin"
         )
         db.session.add(admin)

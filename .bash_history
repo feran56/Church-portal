@@ -418,3 +418,14 @@ nano templates/base.html
 python app.py
 nano app.py
 Is templates
+nano app.py
+grep -n "logout" app.py
+grep -n "logout" templates/base.html
+nano app.py
+grep -n "openLogoutModal" templates/base.html
+grep -n "cloasLogoutModal" templates/base.html~
+grep -n "closeLogoutModal" templates/base.html
+nano templates/base.html
+git add .
+git commit -m "fix logout modal"
+git push origin main

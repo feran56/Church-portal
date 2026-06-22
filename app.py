@@ -15,7 +15,6 @@ from datetime import date
 today = date.today().isoformat()
 
 from datetime import date, datetime
-from flask import session
 
 app = Flask(__name__)
 
@@ -186,6 +185,9 @@ class Remittance(db.Model):
     total_remitted = db.Column(db.Integer)	
 
 
+with app.app_context():
+    db.create_all()
+
 # ======================
 # PDF EXPORT - FINANCE
 # ======================
@@ -299,10 +301,12 @@ def login():
 # ======================
 # LOGOUT
 # ======================
+from flask import session, redirect, url_for
+
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/")
+    return redirect(url_for("login"))
 
 # ======================
 # DASHBOARD

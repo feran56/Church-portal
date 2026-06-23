@@ -16,7 +16,12 @@ today = date.today().isoformat()
 
 from datetime import date, datetime
 
+# ======================
+# APP START UP
+# ======================
+
 app = Flask(__name__)
+
 
 # secret key (safe fallback)
 secret = os.environ.get("SECRET_KEY")
@@ -182,11 +187,8 @@ class Remittance(db.Model):
 
     house_fellowship = db.Column(db.String(200))
 
-    total_remitted = db.Column(db.Integer)	
+    total_remitted = db.Column(db.Integer)
 
-
-with app.app_context():
-    db.create_all()
 
 # ======================
 # PDF EXPORT - FINANCE
@@ -207,7 +209,7 @@ def finance_pdf():
 
     y -= 30
 
-    for r in records:	
+    for r in records:
         p.drawString(100, y, f"{r.date} | {r.category} | {r.amount}")
         y -= 20
 
@@ -269,6 +271,7 @@ def attendance_pdf():
         )
         db.session.add(admin)
         db.session.commit()
+
 
 # ======================
 # LOGIN (FIXED)
@@ -525,7 +528,9 @@ def attendance():
     )
 
 
-
+# ======================
+# ATTENDANCE CATEGORY
+# ======================
 @app.route("/attendance/add/<category>", methods=["POST"])
 def add_attendance(category):
 
@@ -547,7 +552,9 @@ def add_attendance(category):
 
     return redirect("/attendance")
 
-
+# ====================
+# EDIT ATTENDANCE
+# ====================
 @app.route("/attendance/edit/<int:id>", methods=["POST"])
 def edit_attendance(id):
 
@@ -571,7 +578,9 @@ def edit_attendance(id):
 
     return redirect("/attendance")
 
-
+# =======================
+# DELETE ATTENDANCE
+# =======================
 @app.route("/attendance/delete/<int:id>")
 def delete_attendance(id):
 
@@ -582,12 +591,17 @@ def delete_attendance(id):
 
     return redirect("/attendance")
 
+# ======================
+# SERVUCE ATTENDANCE
+# =======================
 @app.route("/attendance/service")
 def attendance_service():
     records = Attendance.query.filter_by(category="Service").all()
     return render_template("attendance_service.html", records=records)
 
-
+# =======================
+# ADD SERVICE
+# ======================
 @app.route("/attendance/service/add", methods=["POST"])
 def add_service_attendance():
 
@@ -612,8 +626,9 @@ def add_service_attendance():
     return redirect("/attendance/service")
 
 
-
-
+# ======================
+# EDIT SERVICE ATTENDANCE
+# ======================
 @app.route("/attendance/service/edit/<int:id>", methods=["POST"])
 def edit_service_attendance(id):
 
@@ -635,7 +650,9 @@ def edit_service_attendance(id):
 
     return redirect("/attendance/service")
 
-
+# ========================
+# DELETE SERVICE ATTENDANcE
+# ========================
 @app.route("/attendance/service/delete/<int:id>")
 def delete_service_attendance(id):
 
@@ -647,7 +664,9 @@ def delete_service_attendance(id):
 
     return redirect("/attendance/service")
 
-
+# =======================
+# SUNDAY SCHOOL ATTENDANCE
+# =======================
 @app.route("/attendance/sunday_school")
 def attendance_sunday_school():
 
@@ -658,6 +677,10 @@ def attendance_sunday_school():
         records=records
     )
 
+
+# =======================
+# HOUSE FELLOSHIP ATTENDANCE
+# =======================
 @app.route("/attendance/house_fellowship")
 def attendance_house_fellowship():
 
@@ -668,6 +691,9 @@ def attendance_house_fellowship():
         records=records
     )
 
+# ========================
+# EVANGELISM ATTENDANCE
+# ========================
 @app.route("/attendance/evangelism")
 def attendance_evangelism():
 
@@ -677,7 +703,6 @@ def attendance_evangelism():
         "attendance_evangelism.html",
         records=records
     )
-
 
 
 # =====================
@@ -868,6 +893,9 @@ def test_email():
 # ======================
 # RUN APP
 # ======================
+with app.app_context():
+    db.create_all()
+
 if __name__ == "__main__":
     app.run(debug=True)
 

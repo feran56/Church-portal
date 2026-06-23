@@ -258,15 +258,12 @@ def attendance_pdf():
 # ======================
 # CREATE DB + DEFAULT ADMIN
 # ======================
-with app.app_context():
-    db.create_all()
-
     admin = User.query.filter_by(username="admin").first()
 
     if not admin:
         admin = User(
             username="admin",
-            email="admin@gmail.com",
+            email="akingbadeoluwaferanmi55@gmail.com",
             password=generate_password_hash("1234"),
             role="admin"
         )
@@ -867,13 +864,6 @@ def test_email():
     )
 
     return "sent"
-
-
-# ======================
-# CREATE TABLES (IMPORTANT)
-# ======================
-with app.app_context():
-    db.create_all()
 
 # ======================
 # RUN APP

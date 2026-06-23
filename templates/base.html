@@ -366,14 +366,6 @@ body.light {
     text-decoration:none;
 }
 
-function openLogoutModal(){
-    document.getElementById("logoutModal").style.display="flex";
-}
-
-function closeLogoutModal(){
-    document.getElementById("logoutModal").style.display="none";
-}
-
 </style> </head>
 <body>
 
@@ -513,6 +505,14 @@ function closeLogoutModal(){
 
 <!-- ================= SCRIPT ================= -->
 <script>
+
+function openLogoutModal(){
+    document.getElementById("logoutModal").style.display="flex";
+}
+
+function closeLogoutModal(){
+    document.getElementById("logoutModal").style.display="none";
+}
 
 function toggleSidebar(){
     document.getElementById("sidebar").classList.toggle("collapsed");

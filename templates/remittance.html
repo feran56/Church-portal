@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+/* ================= WHITE PAPER STYLE ================= */
+body{
+    background:white !important;
+    color:black !important;
+    font-family:Arial,sans-serif;
+}
+
+/* SHEET */
+.sheet{
+    width:100%;
+    max-width:900px;
+    margin:auto;
+    background:white;
+}
+
+/* TITLES */
+.title{
+    text-align:center;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.subtitle{
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+/* DEFAULT INPUTS */
+input{
+    border:none;
+    border-bottom:1px solid black;
+    outline:none;
+    background:transparent;
+    font-size:10px;
+    width:32px;
+}
+
+/* MAIN LAYOUT */
+.container{
+    display:flex;
+    width:100%;
+}
+
+/* TABLE SIDE */
+.left{
+    width:64%;
+}
+
+/* MONETARY SIDE */
+.right{
+    width:36%;
+    border-left:1px solid black;
+    padding-left:4px;
+    font-size:9px;
+    box-sizing:border-box;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:8px;
+}
+
+th,
+td{
+    border:1px solid black;
+    padding:1px;
+    text-align:center;
+}
+
+/* FIXED WIDTH FOR LAST COLUMNS */
+.ss-col{
+    width:40px;
+}
+
+.hf-col{
+    width:40px;
+}
+
+/* SMALLER INPUTS FOR SS/HF */
+.ss-input,
+.hf-input{
+    width:25px;
+}
+
+/* MONETARY */
+.right p{
+    margin:4px 0;
+}
+
+/* FOOTER */
+.footer{
+    margin-top:20px;
+    text-align:center;
+    font-weight:bold;
+    font-size:11px;
+}
+
+/* PRINT */
+@media print{
+    button{
+        display:none;
+    }
+}
+
+@media print {
+
+    body {
+        zoom: 0.85;   /* reduces overflow */
+    }
+
+    .container {
+        display: flex;
+        gap: 40px; /* creates space between SS/HF and money section */
+        align-items: flex-start;
+    }
+
+    .left {
+        width: 60%;
+    }
+
+    .right {
+        width: 40%;
+        padding-left: 20px;
+    }
+
+    input {
+        font-size: 12px;
+    }
+
+    button {
+        display: none; /* hides print button */
+    }
+}
+
+@page {
+    size: A4;
+    margin: 20mm;
+}
+
+</style>
+
+<div class="sheet">
+
+<!-- TITLE -->
+<div class="title">LAGOS PROVINCE 70</div>
+<div class="subtitle">MONTHLY GENERAL PROGRESS REPORT SHEET</div>
+
+<!-- HEADER INPUTS -->
+<div>
+    NAME OF AREA: <input type="text" style="width:300px;">
+</div>
+
+<div>
+    NAME OF PARISH: <input type="text" style="width:300px;">
+</div>
+
+<div>
+    NAME OF ZONE: <input type="text" style="width:300px;">
+</div>
+
+<div>
+    MONTH: <input type="text" style="width:200px;">
+    YEAR: <input type="text" style="width:150px;">
+</div>
+
+<br>
+
+<!-- MAIN SHEET -->
+<div class="container">
+
+<!-- LEFT SIDE -->
+<div class="left">
+
+<table>
+
+<tr>
+    <th>DATE</th>
+    <th>DAYS</th>
+    <th>MEN</th>
+    <th>WOMEN</th>
+    <th>CHILDREN</th>
+    <th>TOTAL</th>
+    <th>PREACHER</th>
+    <th>NEW CONVERTS</th>
+    <th>NEW GUEST</th>
+    <th class="ss-col">SS</th>
+    <th class="hf-col">HF</th>
+</tr>
+
+{% for i in range(20) %}
+<tr>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+
+    <td><input class="ss-input"></td>
+    <td><input class="hf-input"></td>
+
+</tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+<!-- RIGHT SIDE MONETARY -->
+<div class="right">
+
+<h3>MONETARY</h3>
+
+<p>MINISTERS TITHES</p>
+100% <input><br>
+63% <input>
+
+<p>MEMBERS TITHES</p>
+100% <input><br>
+50% <input>
+
+<p>THANKSGIVING</p>
+100% <input><br>
+70% <input><br>
+5% <input>
+
+<p>SLO</p>
+100% <input><br>
+10% <input><br>
+20% <input>
+
+<p>CRM</p>
+100% <input><br>
+40% <input><br>
+20% <input>
+
+<p>GOSPEL FUND</p>
+100% <input><br>
+25% <input>
+
+<p>FIRST FRUITS</p>
+100% <input>
+
+<p>CHILDREN OFFERING</p>
+100% <input><br>
+35% <input>
+
+<p>SCHOOL OFFERING</p>
+100% <input><br>
+60% <input>
+
+<p>HOUSE FELLOWSHIP</p>
+<input>
+
+<div class="money-item small">
+OTHER<br>
+
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"> :
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"><br>
+
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"> :
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"><br>
+
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"> :
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"><br>
+
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"> :
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"><br>
+
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"> :
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"><br>
+
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"> :
+<input type="text" style="border:none; border-bottom:1px solid black; width:50px;"><br>
+
+</div>
+
+<p><b>TOTAL REMITTED</b></p>
+<input>
+
+</div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    Name of Pastor in Charge of Parish & Signature:
+    <input type="text" style="width:150px;">
+</div>
+
+<br>
+
+<button onclick="window.print()">🖨 PRINT REPORT</button>
+
+</div>
+
+{% endblock %}

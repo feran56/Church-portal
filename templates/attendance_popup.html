@@ -1,0 +1,59 @@
+<!-- ================= ATTENDANCE MASTER POPUP ================= -->
+
+<!-- ADD / EDIT POPUP -->
+<div id="attendanceModal" class="attendance-modal">
+
+    <div class="attendance-box">
+
+        <div class="attendance-header">
+            <span>📋 Attendance Record</span>
+
+            <button onclick="closeAttendance()">
+                ✖
+            </button>
+        </div>
+
+        <form id="attendanceForm" method="POST">
+
+            <input type="hidden" name="id" id="att_id">
+
+            <input type="date" name="date" id="att_date" required>
+
+            <input type="number" name="men" placeholder="Men">
+            <input type="number" name="women" placeholder="Women">
+            <input type="number" name="children" placeholder="Children">
+
+            <button type="submit" class="save-btn">💾 Save</button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- DELETE CONFIRMATION POPUP -->
+<div id="deleteModal" class="delete-modal">
+
+    <div class="delete-box">
+
+        <h3>⚠️ Delete Record</h3>
+
+        <p>
+            This action cannot be undone.
+        </p>
+
+        <form id="deleteForm" method="POST">
+
+            <button type="submit" class="danger-btn">
+                Yes, Delete
+            </button>
+
+            <button type="button" onclick="closeDelete()">
+                Cancel
+            </button>
+
+        </form>
+
+    </div>
+
+</div>

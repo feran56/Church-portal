@@ -1,0 +1,297 @@
+from flask import Flask, request, redirect
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+
+# DATABASE
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///church.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+# =========================
+# MODELS
+# =========================
+
+class Finance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(100))
+    amount = db.Column(db.Integer)
+    date = db.Column(db.String(50))
+
+
+class Attendance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(50))
+    men = db.Column(db.Integer)
+    women = db.Column(db.Integer)
+    children = db.Column(db.Integer)
+    sunday_school = db.Column(db.Integer)
+
+
+with app.app_context():
+    db.create_all()
+
+
+# =========================
+# CATEGORIES
+# =========================
+
+CATEGORIES = [
+    "General Tithe",
+    "Minister Tithe",
+    "SLO",
+    "CRM",
+    "Workers Fund",
+    "Thanksgiving Offering",
+    "Project Offering",
+    "Sunday School Offering",
+    "Evangelism Offering",
+    "Children Offering",
+    "CSR",
+    "Welfare",
+    "Building Fund",
+    "Transport",
+    "Media",
+    "Choir",
+    "Youth Offering",
+    "House Fellowship Offering"
+]
+
+
+# =========================
+# HOME
+# =========================
+
+@app.route("/")
+def home():
+    return """
+    <h1>⛪ Church Portal Dashboard</h1>
+    <a href="/finance">💰 Finance</a><br>
+    <a href="/attendance">📊 Attendance</a>
+    """
+
+
+# =========================
+# FINANCE
+# =========================
+
+@app.route("/finance", methods=["GET", "POST"])
+def finance():
+
+    if request.method == "POST":
+        db.session.add(Finance(
+            category=request.form["category"],
+            amount=int(request.form["amount"]),
+            date=request.form["date"]
+        ))
+        db.session.commit()
+        return redirect("/finance")
+
+    records = Finance.query.all()
+    total = 0
+
+    html = """
+    <h1 style="text-align:center;">💰 Finance Dashboard</h1>
+
+    <div style="max-width:900px;margin:auto;">
+
+    <form method="POST" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+
+    <select name="category">
+    """
+
+    for c in CATEGORIES:
+        html += f'<option value="{c}">{c}</option>'
+
+    html += """
+    </select>
+
+    <input name="date" placeholder="Date (Sunday)" required>
+    <input name="amount" type="number" placeholder="Amount" required>
+    <button type="submit">Add</button>
+    </form>
+
+    <table border="1" cellpadding="10" style="width:100%;border-collapse:collapse;text-align:center;">
+        <tr style="background:black;color:white;">
+            <th>Category</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Actions</th>
+        </tr>
+    """
+
+    for r in records:
+        total += r.amount
+
+        html += f"""
+        <tr>
+            <td>{r.category}</td>
+            <td>{r.date}</td>
+            <td>{r.amount}</td>
+            <td>
+                <a href="/edit/{r.id}">Edit</a> |
+                <a href="/delete/{r.id}">Delete</a>
+            </td>
+        </tr>
+        """
+
+    html += f"""
+    </table>
+
+    <h2 style="text-align:right;">Total: ₦{total}</h2>
+
+    <br>
+    <a href="/">Back Home</a>
+
+    </div>
+    """
+
+    return html
+
+
+# =========================
+# DELETE FINANCE
+# =========================
+
+@app.route("/delete/<int:id>")
+def delete(id):
+    record = Finance.query.get(id)
+
+    if record:
+        db.session.delete(record)
+        db.session.commit()
+
+    return redirect("/finance")
+
+
+# =========================
+# EDIT FINANCE
+# =========================
+
+@app.route("/edit/<int:id>", methods=["GET", "POST"])
+def edit(id):
+
+    record = Finance.query.get(id)
+
+    if request.method == "POST":
+        record.amount = int(request.form["amount"])
+        record.date = request.form["date"]
+
+        db.session.commit()
+        return redirect("/finance")
+
+    return f"""
+    <h2>Edit Finance</h2>
+
+    <form method="POST">
+        <input name="date" value="{record.date}">
+        <input name="amount" value="{record.amount}">
+        <button type="submit">Update</button>
+    </form>
+
+    <a href="/finance">Back</a>
+    """
+
+
+# =========================
+# ATTENDANCE
+# =========================
+
+@app.route("/attendance", methods=["GET", "POST"])
+def attendance():
+
+    if request.method == "POST":
+        db.session.add(Attendance(
+            date=request.form["date"],
+            men=int(request.form["men"]),
+            women=int(request.form["women"]),
+            children=int(request.form["children"]),
+            sunday_school=int(request.form["sunday_school"])
+        ))
+        db.session.commit()
+        return redirect("/attendance")
+
+    records = Attendance.query.all()
+    total = 0
+
+    html = """
+    <h1 style="text-align:center;">📊 Attendance Dashboard</h1>
+
+    <div style="max-width:900px;margin:auto;">
+
+    <form method="POST" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+
+        <input name="date" placeholder="Date (Sunday)" required>
+        <input name="men" type="number" placeholder="Men" required>
+        <input name="women" type="number" placeholder="Women" required>
+        <input name="children" type="number" placeholder="Children" required>
+        <input name="sunday_school" type="number" placeholder="Sunday School" required>
+
+        <button type="submit">Add</button>
+    </form>
+
+    <table border="1" cellpadding="10" style="width:100%;border-collapse:collapse;text-align:center;">
+        <tr style="background:black;color:white;">
+            <th>Date</th>
+            <th>Men</th>
+            <th>Women</th>
+            <th>Children</th>
+            <th>Sunday School</th>
+            <th>Total</th>
+        </tr>
+    """
+
+    for r in records:
+        row_total = r.men + r.women + r.children + r.sunday_school
+        total += row_total
+
+        html += f"""
+        <tr>
+            <td>{r.date}</td>
+            <td>{r.men}</td>
+            <td>{r.women}</td>
+            <td>{r.children}</td>
+            <td>{r.sunday_school}</td>
+            <td>
+                {row_total}<br>
+                <a href="/attendance/delete/{r.id}">Delete</a>
+            </td>
+        </tr>
+        """
+
+    html += f"""
+    </table>
+
+    <h2 style="text-align:right;">Total Attendance: {total}</h2>
+
+    <br>
+    <a href="/">Back Home</a>
+
+    </div>
+    """
+
+    return html
+
+
+# =========================
+# DELETE ATTENDANCE
+# =========================
+
+@app.route("/attendance/delete/<int:id>")
+def delete_attendance(id):
+    record = Attendance.query.get(id)
+
+    if record:
+        db.session.delete(record)
+        db.session.commit()
+
+    return redirect("/attendance")
+
+
+# =========================
+# RUN
+# =========================
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=False)

@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+/* ===== PAGE BACKGROUND ===== */
+body{
+    background: linear-gradient(135deg,#0f172a,#020617);
+    color:white;
+}
+
+/* ===== TITLE ===== */
+h2{
+    text-align:center;
+    margin-top:20px;
+    font-size:28px;
+}
+
+/* ===== FORM ===== */
+.finance-form{
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(10px);
+    padding:20px;
+    border-radius:20px;
+    margin-top:20px;
+}
+
+/* ===== INPUTS ===== */
+.finance-form input,
+.finance-form select{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:12px;
+    border:none;
+    outline:none;
+}
+
+/* ===== BUTTON ===== */
+.finance-form button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background: linear-gradient(135deg,#22c55e,#16a34a);
+    color:white;
+    font-weight:bold;
+}
+
+/* ===== TABLE ===== */
+table{
+    width:100%;
+    margin-top:20px;
+    border-collapse:collapse;
+    background: rgba(255,255,255,0.05);
+    border-radius:15px;
+    overflow:hidden;
+}
+
+th, td{
+    padding:12px;
+    text-align:center;
+}
+
+tr:hover{
+    background: rgba(255,255,255,0.08);
+}
+
+/* ===== BUTTONS ===== */
+button{
+    cursor:pointer;
+    border:none;
+    padding:6px 10px;
+    border-radius:8px;
+}
+
+.edit-btn{
+    background:#3b82f6;
+    color:white;
+}
+
+.delete-btn{
+    background:#ef4444;
+    color:white;
+}
+
+/* ===== MODAL BACKGROUND ===== */
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+/* ===== MODAL BOX ===== */
+.modal-content{
+    background: white;
+    color:black;
+    width:90%;
+    max-width:380px;
+    padding:25px;
+    border-radius:20px;
+    animation: pop .25s ease;
+}
+
+@keyframes pop{
+    from{transform:scale(0.8); opacity:0;}
+    to{transform:scale(1); opacity:1;}
+}
+
+/* ===== MODAL INPUTS ===== */
+.modal-content input,
+.modal-content select{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:10px;
+    border:1px solid #ddd;
+}
+
+/* ===== MODAL BUTTONS ===== */
+.save-btn{
+    width:100%;
+    margin-top:15px;
+    padding:10px;
+    border-radius:10px;
+    background:#22c55e;
+    color:white;
+}
+
+.delete-btn-confirm{
+    width:100%;
+    margin-top:15px;
+    padding:10px;
+    border-radius:10px;
+    background:#ef4444;
+    color:white;
+}
+
+.cancel-btn{
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    border-radius:10px;
+    background:#6b7280;
+    color:white;
+}
+
+.back-btn{
+display:inline-block;
+margin-bottom:15px;
+padding:10px 18px;
+background:#111827;
+color:white;
+border-radius:10px;
+text-decoration:none;
+font-weight:bold;
+}
+
+.back-btn:hover{
+transform:scale(1.05);
+}
+
+</style>
+
+<!-- ===== CATEGORY TITLE ===== -->
+<h2>💰 {{ category }}</h2>
+
+<a href="/finance" class="back-btn">
+⬅ Back to Finance
+</a>
+
+<!-- ===== ADD FORM ===== -->
+<form method="POST" class="finance-form">
+
+    <input type="date"
+           name="date"
+           value="{{ today }}"
+           required>
+
+    <input type="number"
+           name="amount"
+           placeholder="Amount"
+           required>
+
+    <select name="trans_type" required>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+    </select>
+
+    <button type="submit">➕ Save Record</button>
+
+</form>
+
+<!-- ===== RECORDS TABLE ===== -->
+<table>
+
+    <tr>
+        <th>Date</th>
+        <th>Amount</th>
+        <th>Type</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for r in records %}
+    <tr>
+
+        <td>{{ r.date }}</td>
+        <td>{{ r.amount }}</td>
+        <td>{{ r.trans_type }}</td>
+
+        <td>
+
+            <button class="edit-btn"
+                onclick="openEdit(
+                    '{{ r.id }}',
+                    '{{ r.amount }}',
+                    '{{ r.trans_type }}',
+                    '{{ r.date }}'
+                )">
+                ✏ Edit
+            </button>
+
+            <button class="delete-btn"
+                onclick="openDelete('{{ r.id }}')">
+                🗑 Delete
+            </button>
+
+        </td>
+
+    </tr>
+    {% endfor %}
+
+</table>
+
+<!-- ===== EDIT MODAL ===== -->
+<div id="editModal" class="modal">
+
+    <div class="modal-content">
+
+        <h3>Edit Record</h3>
+
+        <form method="POST" action="/finance/edit">
+
+            <input type="hidden" name="id" id="edit_id">
+
+            <input type="date" name="date" id="edit_date" required>
+
+            <input type="number" name="amount" id="edit_amount" required>
+
+            <select name="trans_type" id="edit_type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+
+            <button class="save-btn" type="submit">Save Changes</button>
+            <button type="button" class="cancel-btn" onclick="closeEdit()">Cancel</button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- ===== DELETE MODAL ===== -->
+<div id="deleteModal" class="modal">
+
+    <div class="modal-content">
+
+        <h3>Delete Record?</h3>
+
+     <form id="deleteForm" method="POST">
+     <button class="delete-btn-confirm" type="submit">
+        Yes Delete
+    </button>
+       
+        </form> 
+
+    </div>
+
+</div>
+
+<!-- ===== SCRIPT ===== -->
+<script>
+
+function openEdit(id, amount, type, date){
+
+    document.getElementById("edit_id").value = id;
+    document.getElementById("edit_amount").value = amount;
+    document.getElementById("edit_type").value = type;
+    document.getElementById("edit_date").value = date;
+
+    document.getElementById("editModal").style.display = "flex";
+}
+
+function closeEdit(){
+    document.getElementById("editModal").style.display = "none";
+}
+
+function openDelete(id){
+    document.getElementById("deleteForm").action =
+    "/delete_finance/" + id;
+
+    document.getElementById("deleteModal").style.display = "flex";
+}
+
+function closeDelete(){
+    document.getElementById("deleteModal").style.display = "none";
+}
+
+</script>
+
+{% endblock %}

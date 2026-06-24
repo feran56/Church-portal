@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="title">📋 Service Attendance</h2><a href="/attendance" class="back-btn">⬅ Back</a>
+
+<!-- ADD BUTTON --><button class="add-btn" onclick="openAddPopup()">
+➕ Add Attendance
+</button><!-- TABLE --><table class="table"><thead>
+<tr>
+<th>Date</th>
+<th>Men</th>
+<th>Women</th>
+<th>Children</th>
+<th>Total</th>
+<th>Actions</th>
+</tr>
+</thead><tbody>{% for row in records %}
+
+<tr><td>{{ row.date }}</td>
+<td>{{ row.men }}</td>
+<td>{{ row.women }}</td>
+<td>{{ row.children }}</td>
+<td>{{ row.total }}</td><td><button class="edit-btn"
+onclick="openEditPopup(
+'{{ row.id }}',
+'{{ row.date }}',
+'{{ row.men }}',
+'{{ row.women }}',
+'{{ row.children }}'
+)">
+✏ Edit
+</button>
+
+<button class="delete-btn"
+onclick="openDeletePopup('{{ row.id }}')">
+🗑 Delete
+</button>
+
+</td></tr>
+{% endfor %}</tbody></table><!-- ================= ADD POPUP ================= --><div id="addPopup" class="popup"><div class="popup-box"><h3>Add Attendance</h3><form method="POST" action="/attendance/service/add"><input type="date" name="date" required><input type="number" id="men" name="men" placeholder="Men"><input type="number" id="women" name="women" placeholder="Women"><input type="number" id="children" name="children" placeholder="Children"><input type="number" id="total" readonly placeholder="Total"><button type="submit">💾 Save</button>
+
+<button type="button" onclick="closeAddPopup()">Cancel</button>
+
+</form></div></div><!-- ================= EDIT POPUP ================= --><div id="editPopup" class="popup"><div class="popup-box"><h3>Edit Attendance</h3><form id="editForm" method="POST"><input type="date" id="edit_date" name="date"><input type="number" id="edit_men" name="men"><input type="number" id="edit_women" name="women"><input type="number" id="edit_children" name="children"><button type="submit">💾 Update</button>
+
+<button type="button" onclick="closeEditPopup()">Cancel</button>
+
+</form></div></div><!-- ================= DELETE POPUP ================= --><div id="deletePopup" class="popup"><div class="popup-box delete-box"><h3 class="danger">⚠ Delete Record</h3><p>This record will be permanently deleted.</p><p class="warning">This action cannot be undone!</p><div class="btn-row"><a id="deleteLink" class="danger-btn" href="#">Delete</a>
+
+<button onclick="closeDeletePopup()">Cancel</button>
+
+</div></div></div><!-- ================= STYLE ================= --><style>
+
+.title{
+text-align:center;
+margin-bottom:10px;
+}
+
+.back-btn{
+display:inline-block;
+margin-bottom:10px;
+padding:8px 12px;
+background:#2563eb;
+color:white;
+border-radius:8px;
+text-decoration:none;
+}
+
+.add-btn{
+background:#22c55e;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:10px;
+cursor:pointer;
+margin-bottom:15px;
+}
+
+.table{
+width:100%;
+border-collapse:collapse;
+background:white;
+color:black;
+border-radius:10px;
+overflow:hidden;
+}
+
+.table th{
+background:#2563eb;
+color:white;
+padding:10px;
+}
+
+.table td{
+padding:10px;
+text-align:center;
+border-bottom:1px solid #ddd;
+}
+
+.edit-btn{
+background:#f59e0b;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.delete-btn{
+background:#dc2626;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* ================= POPUP ================= */
+
+.popup{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
+animation:fadeIn .2s;
+}
+
+.popup-box{
+background:white;
+color:black;
+padding:20px;
+border-radius:15px;
+width:320px;
+animation:pop .2s;
+}
+
+.popup-box input{
+width:100%;
+margin:5px 0;
+padding:8px;
+}
+
+.danger{
+color:#dc2626;
+}
+
+.warning{
+color:#b91c1c;
+font-weight:bold;
+}
+
+.btn-row{
+display:flex;
+gap:10px;
+justify-content:space-between;
+}
+
+.danger-btn{
+background:#dc2626;
+color:white;
+padding:8px 12px;
+border-radius:8px;
+text-decoration:none;
+}
+
+@keyframes fadeIn{
+from{opacity:0;}
+to{opacity:1;}
+}
+
+@keyframes pop{
+from{transform:scale(0.8);}
+to{transform:scale(1);}
+}
+
+</style><!-- ================= SCRIPT ================= --><script>
+
+function openAddPopup(){
+document.getElementById("addPopup").style.display="flex";
+}
+
+function closeAddPopup(){
+document.getElementById("addPopup").style.display="none";
+}
+
+function openEditPopup(id,date,men,women,children){
+
+document.getElementById("editPopup").style.display="flex";
+
+document.getElementById("editForm").action =
+"/attendance/service/edit/"+id;
+
+document.getElementById("edit_date").value=date;
+document.getElementById("edit_men").value=men;
+document.getElementById("edit_women").value=women;
+document.getElementById("edit_children").value=children;
+
+}
+
+function closeEditPopup(){
+document.getElementById("editPopup").style.display="none";
+}
+
+function openDeletePopup(id){
+document.getElementById("deletePopup").style.display="flex";
+document.getElementById("deleteLink").href =
+"/attendance/service/delete/"+id;
+}
+
+function closeDeletePopup(){
+document.getElementById("deletePopup").style.display="none";
+}
+
+/* TOTAL */
+function updateTotal(){
+
+let m = parseInt(document.getElementById("men").value)||0;
+let w = parseInt(document.getElementById("women").value)||0;
+let c = parseInt(document.getElementById("children").value)||0;
+
+document.getElementById("total").value = m+w+c;
+
+}
+
+document.getElementById("men").addEventListener("input",updateTotal);
+document.getElementById("women").addEventListener("input",updateTotal);
+document.getElementById("children").addEventListener("input",updateTotal);
+
+</script>
+
+{% endblock %}

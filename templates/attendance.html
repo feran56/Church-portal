@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="attendance-header">
+    <h1>📋 Attendance Management</h1>
+    <p>Select a category to record attendance</p>
+</div><div class="attendance-grid"><a href="/attendance/service" class="attendance-card">
+    <div class="card-icon">⛪</div>
+    <div class="card-name">Service</div>
+</a><a href="/attendance/sunday_school" class="attendance-card">
+    <div class="card-icon">📖</div>
+    <div class="card-name">Sunday School</div>
+</a><a href="/attendance/house_fellowship" class="attendance-card">
+    <div class="card-icon">🏠</div>
+    <div class="card-name">House Fellowship</div>
+</a><a href="/attendance/evangelism" class="attendance-card">
+    <div class="card-icon">📢</div>
+    <div class="card-name">Evangelism</div>
+</a></div><style>
+
+.attendance-header{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.attendance-header h1{
+    color:white;
+    font-size:32px;
+    margin-bottom:5px;
+}
+
+.attendance-header p{
+    color:#b0b0b0;
+}
+
+.attendance-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+    gap:20px;
+}
+
+.attendance-card{
+
+    text-decoration:none;
+
+    border-radius:25px;
+
+    height:170px;
+
+    display:flex;
+    flex-direction:column;
+
+    justify-content:center;
+    align-items:center;
+
+    background:#1e293b;
+
+    transition:.3s;
+
+    color:white;
+}
+
+.attendance-card:hover{
+
+    transform:translateY(-5px);
+
+    background:#2563eb;
+}
+
+.card-icon{
+
+    font-size:45px;
+
+    margin-bottom:10px;
+}
+
+.card-name{
+
+    font-size:18px;
+
+    font-weight:bold;
+}
+
+</style>{% endblock %}

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="finance-header">
+    <h1>💰 Finance Management</h1>
+    <p>Select a category to record income or expenses</p>
+</div>
+
+<!-- INCOME -->
+<h2 class="section-title income-title">
+    📥 Income Categories
+</h2>
+
+<div class="finance-grid">
+
+{% for item in income_categories %}
+<a href="/finance/{{ item }}" class="finance-card income-card">
+
+    <div class="card-icon">💵</div>
+
+    <div class="card-name">
+        {{ item }}
+    </div>
+
+</a>
+{% endfor %}
+
+</div>
+
+
+<!-- EXPENSE -->
+<h2 class="section-title expense-title">
+    📤 Expense Categories
+</h2>
+
+<div class="finance-grid">
+
+{% for item in expense_categories %}
+<a href="/finance/{{ item }}" class="finance-card expense-card">
+
+    <div class="card-icon">💸</div>
+
+    <div class="card-name">
+        {{ item }}
+    </div>
+
+</a>
+{% endfor %}
+
+</div>
+
+
+<style>
+
+.finance-header{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.finance-header h1{
+    color:white;
+    font-size:32px;
+    margin-bottom:5px;
+}
+
+.finance-header p{
+    color:#b0b0b0;
+}
+
+.section-title{
+    margin-top:30px;
+    margin-bottom:15px;
+    font-size:24px;
+}
+
+.income-title{
+    color:#22c55e;
+}
+
+.expense-title{
+    color:#ef4444;
+}
+
+/* GRID */
+
+.finance-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+    gap:20px;
+}
+
+/* CARD */
+
+.finance-card{
+    text-decoration:none;
+    border-radius:25px;
+    height:170px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    transition:all .35s ease;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,.35);
+
+    position:relative;
+
+    overflow:hidden;
+}
+
+.finance-card:hover{
+    transform:translateY(-8px) scale(1.03);
+
+    box-shadow:
+    0 15px 35px rgba(0,0,0,.45);
+}
+
+/* INCOME */
+
+.income-card{
+    background:
+    linear-gradient(
+    135deg,
+    #22c55e,
+    #15803d
+    );
+
+    color:white;
+}
+
+/* EXPENSE */
+
+.expense-card{
+    background:
+    linear-gradient(
+    135deg,
+    #ef4444,
+    #991b1b
+    );
+
+    color:white;
+}
+
+/* ICON */
+
+.card-icon{
+    font-size:42px;
+    margin-bottom:12px;
+}
+
+/* NAME */
+
+.card-name{
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+    padding:0 10px;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+.finance-grid{
+    grid-template-columns:1fr 1fr;
+}
+
+.finance-card{
+    height:150px;
+}
+
+.card-name{
+    font-size:15px;
+}
+
+}
+
+</style>
+
+{% endblock %}	

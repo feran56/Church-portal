@@ -257,9 +257,15 @@ def attendance_pdf():
 
     return send_file(buffer, as_attachment=True, download_name="attendance.pdf")
 
+
 # ======================
-# CREATE DB + DEFAULT ADMIN
+# CREATE DATABASE + ADMIN
 # ======================
+
+with app.app_context():
+
+    db.create_all()
+
     admin = User.query.filter_by(username="admin").first()
 
     if not admin:
@@ -269,8 +275,10 @@ def attendance_pdf():
             password=generate_password_hash("1234"),
             role="admin"
         )
+
         db.session.add(admin)
         db.session.commit()
+
 
 
 # ======================
@@ -893,9 +901,6 @@ def test_email():
 # ======================
 # RUN APP
 # ======================
-with app.app_context():
-    db.create_all()
-
 if __name__ == "__main__":
     app.run(debug=True)
 

@@ -308,6 +308,30 @@ def login():
     return render_template("login.html", error=error)
 
 
+
+import sqlite3
+
+def init_db():
+    conn = sqlite3.connect("church.db")
+    c = conn.cursor()
+
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS users(
+        id INTEGER PRIMARY KEY,
+        username TEXT,
+        password TEXT
+    )
+    """)
+
+    c.execute("""
+    INSERT OR IGNORE INTO users VALUES(1,'admin','1234')
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+
 # ======================
 # LOGOUT
 # ======================
@@ -785,19 +809,38 @@ def remittance():
 # ======================
 # FORGOT PASSWORD (BREVO)
 # ======================
-@app.route("/forgot-password", methods=["GET","POST"])
+@app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
-    if request.method == "POST":
-        username = request.form["username"]
-        new_password = request.form["password"]
-        user = User.query.filter_by(username=username).first()
-        if not user:
-            return "User not found"
-        user.password = generate_password_hash(new_password)
-        db.session.commit()
-        return "Password changed successfully"
-    return render_template("forgot_password.html")
 
+    message = ""
+
+    if request.method == "POST":
+
+        email = request.form.get("email")
+
+        user = User.query.filter_by(email=email).first()
+
+        if user:
+
+            token = s.dumps(user.username, salt="reset")
+
+            link = url_for("reset_password", token=token, _external=True)
+
+            html = f"""
+            <h2>Reset Password</h2>
+            <p>Click below to reset your password:</p>
+            <a href="{link}">Reset Password</a>
+            """
+
+            send_email(user.email, "Church Portal Password Reset", html)
+
+            message = "Reset link sent to your email"
+
+        else:
+            # IMPORTANT: still show success message (security best practice)
+            message = "If this email exists, a reset link has been sent"
+
+    return render_template("forgot_password.html", message=message)
 
 # ======================
 # RESET PASSWORD
@@ -835,3 +878,81 @@ def reset_password(token):
 # ======================
 # CHANGE PASSWORD
 # ======================
+
+
+
+# ======================
+# TEST EMAIL
+# ======================
+@app.route("/test-email")
+def test_email():
+
+    send_email(
+        "akingbadeoluwaferanmi55@gmail.com",
+        "Church Portal Test",
+        "Email system is not working"
+    )
+
+    return "sent"
+
+
+# ======================
+# PDF EXPORT - REMITTANCE
+# ======================
+@app.route("/pdf/remittance")
+def remittance_pdf():
+
+    if "user" not in session:
+        return redirect("/")
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+
+    records = Remittance.query.all()
+
+    y = 800
+
+    p.drawString(100, y, "Remittance Report")
+    y -= 30
+
+    for r in records:
+
+        p.drawString(
+            50,
+            y,
+            f"{r.area} | {r.parish} | {r.zone} | {r.month}/{r.year}"
+        )
+
+        y -= 20
+
+        p.drawString(
+            50,
+            y,
+            f"Total Remitted: {r.total_remitted}"
+        )
+
+        y -= 30
+
+
+        if y < 50:
+            p.showPage()
+            y = 800
+
+
+    p.save()
+
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="remittance.pdf"
+    )
+
+
+# ======================
+# RUN APP
+# ======================
+if __name__ == "__main__":
+    app.run(debug=True)
+

@@ -835,3 +835,50 @@ def reset_password(token):
 # ======================
 # CHANGE PASSWORD
 # ======================
+
+
+# ======================
+# CHANGE PASSWORD
+# ======================
+
+
+
+
+# ======================
+# CHANGE PASSWORD
+# ======================
+
+@app.route("/change-password", methods=["GET","POST"])
+def change_password():
+
+    if "user" not in session:
+        return redirect("/")
+
+    user = User.query.filter_by(
+        username=session["user"]
+    ).first()
+
+    if request.method == "POST":
+
+        new_password = request.form.get("password")
+
+        if not new_password:
+            return "Password required"
+
+        user.password = generate_password_hash(new_password)
+
+        db.session.commit()
+
+        return redirect("/dashboard")
+
+
+    return render_template("change_password.html")
+
+
+
+# ======================
+# RUN APP
+# ======================
+
+if __name__ == "__main__":
+    app.run(debug=True)

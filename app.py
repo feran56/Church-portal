@@ -836,18 +836,6 @@ def reset_password(token):
 # CHANGE PASSWORD
 # ======================
 
-
-# ======================
-# CHANGE PASSWORD
-# ======================
-
-
-
-
-# ======================
-# CHANGE PASSWORD
-# ======================
-
 @app.route("/change-password", methods=["GET","POST"])
 def change_password():
 
@@ -858,22 +846,33 @@ def change_password():
         username=session["user"]
     ).first()
 
+    message = ""
+
     if request.method == "POST":
 
-        new_password = request.form.get("password")
-
-        if not new_password:
-            return "Password required"
-
-        user.password = generate_password_hash(new_password)
-
-        db.session.commit()
-
-        return redirect("/dashboard")
+        old_password = request.form.get("old_password")
+        new_password = request.form.get("new_password")
+        confirm_password = request.form.get("confirm_password")
 
 
-    return render_template("change_password.html")
+        if not check_password_hash(user.password, old_password):
+            message = "Old password is wrong"
 
+        elif new_password != confirm_password:
+            message = "Passwords do not match"
+
+        else:
+            user.password = generate_password_hash(new_password)
+
+            db.session.commit()
+
+            return redirect("/dashboard")
+
+
+    return render_template(
+        "change_password.html",
+        message=message
+    )
 
 
 # ======================

@@ -32,6 +32,7 @@ body{
     margin-bottom:10px;
 }
 
+
 /* DEFAULT INPUTS */
 input{
     border:none;
@@ -39,28 +40,34 @@ input{
     outline:none;
     background:transparent;
     font-size:10px;
-    width:32px;
+    width:45px;
 }
+
 
 /* MAIN LAYOUT */
 .container{
     display:flex;
     width:100%;
+    align-items:flex-start;
 }
+
 
 /* TABLE SIDE */
 .left{
     width:64%;
+    overflow:hidden;
 }
+
 
 /* MONETARY SIDE */
 .right{
     width:36%;
     border-left:1px solid black;
-    padding-left:4px;
+    padding-left:8px;
     font-size:9px;
     box-sizing:border-box;
 }
+
 
 /* TABLE */
 table{
@@ -69,6 +76,7 @@ table{
     font-size:8px;
 }
 
+
 th,
 td{
     border:1px solid black;
@@ -76,7 +84,35 @@ td{
     text-align:center;
 }
 
-/* FIXED WIDTH FOR LAST COLUMNS */
+
+/* DATE COLUMN */
+th:first-child,
+td:first-child{
+    width:70px;
+}
+
+
+/* PREACHER COLUMN */
+th:nth-child(7),
+td:nth-child(7){
+
+    width:120px;
+
+}
+
+
+/* NEW CONVERTS AND GUEST */
+th:nth-child(8),
+td:nth-child(8),
+th:nth-child(9),
+td:nth-child(9){
+
+    width:65px;
+
+}
+
+
+/* SS/HF */
 .ss-col{
     width:40px;
 }
@@ -85,65 +121,101 @@ td{
     width:40px;
 }
 
-/* SMALLER INPUTS FOR SS/HF */
+
 .ss-input,
 .hf-input{
-    width:25px;
+
+    width:30px;
+
 }
 
-/* MONETARY */
-.right p{
-    margin:4px 0;
+
+/* MONEY INPUTS */
+.right input{
+
+    width:100px;
+
 }
+
 
 /* FOOTER */
 .footer{
+
     margin-top:20px;
     text-align:center;
     font-weight:bold;
     font-size:11px;
+
 }
 
-/* PRINT */
+
+
+/* PRINT FIX */
 @media print{
+
+
     button{
-        display:none;
+
+        display:none !important;
+
     }
+
+
+    body{
+
+        zoom:0.85;
+
+    }
+
+
+    .container{
+
+        display:flex !important;
+
+        flex-direction:row !important;
+
+    }
+
+
+    .left{
+
+        width:64% !important;
+
+    }
+
+
+    .right{
+
+        width:36% !important;
+
+        border-left:1px solid black !important;
+
+    }
+
+
+}
+
+
+@page{
+
+    size:A4;
+
+    margin:15mm;
+
 }
 
 @media print {
-
     body {
-        zoom: 0.85;   /* reduces overflow */
+        zoom: 1 !important;
     }
 
     .container {
-        display: flex;
-        gap: 40px; /* creates space between SS/HF and money section */
-        align-items: flex-start;
-    }
-
-    .left {
-        width: 60%;
-    }
-
-    .right {
-        width: 40%;
-        padding-left: 20px;
+        display: block !important;
     }
 
     input {
-        font-size: 12px;
+        font-size: 12px !important;
     }
-
-    button {
-        display: none; /* hides print button */
-    }
-}
-
-@page {
-    size: A4;
-    margin: 20mm;
 }
 
 </style>
@@ -302,7 +374,22 @@ OTHER<br>
 
 <br>
 
-<button onclick="window.print()">🖨 PRINT REPORT</button>
+<button type="button" onclick="safePrint()">
+🖨 PRINT REPORT
+</button>
+
+<script>
+function safePrint() {
+    setTimeout(() => {
+        try {
+            window.focus();
+            window.print();
+        } catch (e) {
+            alert("Print failed. Try using Chrome menu → Print");
+        }
+    }, 300);
+}
+</script>
 
 </div>
 

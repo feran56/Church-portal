@@ -1,3 +1,4 @@
+anubis-netsec @ file:///data/data/com.termux/files/home/Anubis
 argcomplete==3.6.3
 backoff==2.2.1
 blinker==1.9.0
